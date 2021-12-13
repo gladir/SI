@@ -1,0 +1,31 @@
+Procedure BasVersHaut(X1,Y1,X2,Y2,Couleur:Byte);
+Var Compteur : Byte;
+    Longeur  : Byte;
+    XTemp    : Byte;
+Begin
+ Longeur := (X2-X1-1) * 2;
+ XTemp   := X1 + 1;
+ For Compteur := Y1 to Y2-1 do
+ Begin
+  Move(Mem[Adresse:(XTemp+(Compteur+1)*Colonne)*2],
+       Mem[Adresse:(XTemp+Compteur*Colonne)*2],
+       Longeur);
+ End;
+ For Compteur := X1 to X2 do EcritUnCaractere(Compteur,Y2,32,Couleur);
+End;
+
+Procedure HautVersBas(X1,Y1,X2,Y2,Couleur:Byte);
+Var Compteur : Byte;
+    Longeur  : Byte;
+    XTemp    : Byte;
+Begin
+ Longeur := (X2-X1-1) * 2;
+ XTemp   := X1 + 1;
+ For Compteur := Y2-1 downto Y1 do
+ Begin
+  Move(Mem[Adresse:(XTemp+Compteur*Colonne)*2],
+       Mem[Adresse:(XTemp+(Compteur+1)*Colonne)*2],
+       Longeur);
+ End;
+ For Compteur := X1 to X2 do EcritUnCaractere(Compteur,Y1,32,Couleur);
+End;

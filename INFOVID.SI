@@ -1,0 +1,105 @@
+(******************************************************************)
+(*  Proc‚dure   : InfoVideo                                       *)
+(*  Description : Affiche une fenˆtre retournant les informations *)
+(*                de base les cartes vid‚o.                       *)
+(******************************************************************)
+(*  Entr‚e      : X et Y                                          *)
+(*  Sortie      : Aucun                                           *)
+(******************************************************************)
+
+Procedure InfoVideo(X,Y:Byte);
+Var Chaine : String;
+    Temp   : Byte;
+
+ Function NomCarte(Numero:Byte):String;
+ Begin
+  Case Numero of
+   $00 : NomCarte := 'Absente';
+   MDA : NomCarte := 'Monochrome Display Adapter';
+   HGC : NomCarte := 'Hercule Graphic Card';
+   CGA : NomCarte := 'Color Graphics Adapter';
+   GS  : NomCarte := 'Graphics Solution (Wonder Small)';
+   EGA : NomCarte := 'Enhanced Graphics Adapter';
+   PGA : NomCarte := 'Professionnel Graphics Array';
+  MCGA : NomCarte := 'Multi-Color Graphics Array';
+   VGA : NomCarte := 'Video Graphics Array';
+IBM8514: NomCarte := 'eXtended Graphics Array (IBM 8514/A)';
+ITVGA2 : NomCarte := 'Inform Tech-Video Graphics Array 2';
+    11 : NomCarte := 'Video Graphics Array d''ATI (Wonder)';
+    else
+   NomCarte := 'Inconnue';
+  End;
+ End;
+
+ Function NomMoniteur(Numero:Byte):String;
+ Begin
+  Case Numero of
+   0 : NomMoniteur := 'Absente';
+   1 : NomMoniteur := 'Monochrome';
+   2 : NomMoniteur := 'Couleur';
+   3 : NomMoniteur := 'Couleur Haute-Resulution';
+   4 : NomMoniteur := '5175';
+   5 : NomMoniteur := 'Monochrome Digital';
+   6 : NomMoniteur := 'Couleur Digital';
+   7 : NomMoniteur := 'Monochrome Analogique';
+   8 : NomMoniteur := 'Couleur Analogique';
+   9 : NomMoniteur := 'Analogique';
+    else
+   NomMoniteur := 'Inconnue';
+  End;
+ End;
+
+Begin
+ With Video do
+ Begin
+  ConfigurationVideo(Video);
+  FermeCurseur;
+  SelecteVideo;
+  FixeCadre(PaletteCadre_E1);
+  If(Carte[1] <> 0)Then Temp := 8
+		   Else Temp := 0;
+  CadrePlain(X,Y,X+57,Y+12+Temp,$9F);
+  EcritUnAttribut(X,Y,15);
+  EcritUnAttribut(X+1,Y,15);
+  Ecrit(X+26,Y,'Vid‚o',$FC);
+  FixeCadre(PaletteCadre_E2);
+  CadreVide(X+2,Y+2,X+55,Y+9,$9F);
+  Ecrit(X+4,Y+2,' SystŠme vid‚o primaire : ',$9E);
+  Ecrit(X+11,Y+3,'Carte :',$9F);
+  Ecrit(X+19,Y+3,NomCarte(Carte[0]),$9B);
+  Ecrit(X+8,Y+4,'Moniteur :',$9F);
+  Ecrit(X+19,Y+4,NomMoniteur(Moniteur[0]),$9B);
+  Ecrit(X+9,Y+5,'M‚moire :',$9F);
+  Str(Memoire[0],Chaine);
+  Ecrit(X+19,Y+5,Chaine+' octets',$9B);
+  Ecrit(X+5,Y+6,'BIOS en ROM :',$9F);
+  If(ROMBIOS[0] = True)Then Ecrit(X+19,Y+6,'Pr‚sent, C000h',$9B)
+		       Else Ecrit(X+19,Y+6,'Absent',$9B);
+  Ecrit(X+12,Y+7,'Date :',$9F);Ecrit(X+19,Y+7,Date[0],$9B);
+  Ecrit(X+9,Y+8,'Version :',$9F);Ecrit(X+19,Y+8,Version[0],$9B);
+  If(Carte[1] <> 0)Then
+  Begin
+   CadreVide(X+2,Y+10,X+55,Y+17,$9F);
+   Ecrit(X+4,Y+10,' SystŠme vid‚o secondaire : ',$9E);
+   Ecrit(X+11,Y+11,'Carte :',$9F);
+   Ecrit(X+19,Y+11,NomCarte(Carte[1]),$9B);
+   Ecrit(X+8,Y+12,'Moniteur :',$9F);
+   Ecrit(X+19,Y+12,NomMoniteur(Moniteur[1]),$9B);
+   Ecrit(X+9,Y+13,'M‚moire :',$9F);
+   Str(Memoire[1],Chaine);
+   Ecrit(X+19,Y+13,Chaine+' octets',$9B);
+   Ecrit(X+5,Y+14,'BIOS en ROM :',$9F);
+   If(ROMBIOS[1] = True)Then Ecrit(X+19,Y+14,'Pr‚sent, C000h',$9B)
+			Else Ecrit(X+19,Y+14,'Absent',$9B);
+   Ecrit(X+12,Y+15,'Date :',$9F);Ecrit(X+19,Y+15,Date[1],$9B);
+   Ecrit(X+9,Y+16,'Version :',$9F);Ecrit(X+19,Y+16,Version[1],$9B);
+  End;
+  AfficheTouche(X+5,Y+11+Temp,X+18,Y+11+Temp,X+29,Y+11+Temp,X+42,Y+11+Temp);
+  InstalleClignotement;
+  Clock(X+48,Y);
+  Touche := LitClavier;
+  DesinstalleClignotement;
+  AfficheBar;
+  FenetreTapiserie(X,Y,X+59,Y+13+Temp,173,174,$78,$87);
+ End;
+End;

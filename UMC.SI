@@ -1,0 +1,98 @@
+Procedure UsageMemoireConventionnel(X,Y:Byte);
+Var Chaine   : String;
+    Registre : Registers;
+    Int12    : 0..1048576;
+    Nombre   : LongInt;
+    Int67    : Pointer;
+
+ Function MemoireVideo:LongInt;
+ Var Temp : Byte;
+ Begin
+  Temp := Mem[$B000:0];
+  Mem[$B000:0] := 0;
+  If(Mem[$B000:0] = 0)Then
+  Begin
+   Mem[$B000:0] := Temp;
+   MemoireVideo := 65536;
+  End
+   else
+  MemoireVideo := 32768;
+ End;
+
+Begin
+ Intr($12,Registre);
+ Int12 := Registre.AX;
+ Int12 := Int12 shl 10;
+ SelecteMemoire;
+ FixeCadre(PaletteCadre_E1);
+ CadrePlain(X,Y,X+55,Y+15,$9F);
+ EcritUnAttribut(X,Y,15);
+ EcritUnAttribut(X+1,Y,15);
+ Ecrit(X+16,Y,'Usage m‚moire conventionnel',$FC);
+ FixeCadre(PaletteCadre_E2);
+  { Usage du DOS }
+ CadreVide(X+2,Y+2,X+53,Y+6,$9F);
+ Ecrit(X+4,Y+2,' Usage du DOS ',$9E);
+ Str(Int12,Chaine);
+ Ecrit(X+5,Y+3,'Raport du DOS sur les '+Chaine+' octets de m‚moire',$9F);
+ With Registre do
+ Begin
+  AH := $48;
+  BX := $FFFF;
+  MsDos(Registre);
+  Nombre := BX;
+  Nombre := Nombre shl 4;
+  Str((Int12 - Nombre):6,Chaine);
+  Ecrit(X+7,Y+4,Chaine,$9B);
+  Ecrit(X+14,Y+4,'octets utilis‚ pour les programmes',$9F);
+  Str(Nombre:6,Chaine);
+  Ecrit(X+7,Y+5,Chaine,$9B);
+  Ecrit(X+14,Y+5,'octets de libre pour les application',$9F);
+ End;
+  { Organisation de la m‚moire }
+ CadreVide(X+2,Y+7,X+53,Y+12,$9F);
+ Ecrit(X+4,Y+7,' Organisation de la m‚moire ',$9E);
+ Str(Int12,Chaine);
+ Ecrit(X+5,Y+8,Chaine,$9B);
+ Ecrit(X+12,Y+8,'octets de m‚moire conventionnel',$9F);
+ Str(MemoireVideo:6,Chaine);
+ Ecrit(X+5,Y+9,Chaine,$9B);
+ Ecrit(X+12,Y+9,'octets de m‚moire vid‚o',$9F);
+ With Registre do
+ Begin
+  AX := $4300;
+  Intr($2F,Registre);
+  If(AL = $80)Then
+  Begin
+   Nombre := DX;
+   Nombre := Nombre shl 4;
+  End
+   else
+  Nombre := 0;
+ End;
+ Str(Nombre:6,Chaine);
+ Ecrit(X+5,Y+10,Chaine,$9B);
+ Ecrit(X+12,Y+10,'octets d''eXtended Memory',$9F);
+ GetIntVec($67,Int67);
+ If(Mem[Seg(Int67^):Ofs(Int67^)] <> $CF)and(Int67<> Ptr(0,0))Then
+ Begin
+  With Registre do
+  Begin
+   AH := $42;
+   Intr($67,Registre);
+   Nombre := DX;
+   Nombre := Nombre shl 12;
+  End;
+ End
+  else
+ Nombre := 0;
+ Str(Nombre:8,Chaine);
+ Ecrit(X+3,Y+11,Chaine,$9B);
+ Ecrit(X+12,Y+11,'octets d''Expended memory',$9F);
+ AfficheTouche(X+3,Y+14,X+16,Y+14,X+27,Y+14,X+40,Y+14);
+ InstalleClignotement;
+ Touche := LitClavier;
+ DesinstalleClignotement;
+ AfficheBar;
+ FenetreTapiserie(X,Y,X+57,Y+16,173,174,$78,$87);
+End;

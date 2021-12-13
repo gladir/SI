@@ -1,0 +1,69 @@
+(***************************************************************)
+(*  Proc‚dure   : Processeur                                   *)
+(*  Description : Affiche une fenˆtre d‚crivant le processeur. *)
+(***************************************************************)
+(*  Entr‚e      : X et Y                                       *)
+(*  Sortie      : Aucun                                        *)
+(***************************************************************)
+
+Procedure Processeur(X,Y:Byte);
+Begin
+ FermeCurseur;
+ AfficheBar;
+ SelecteProcesseur;
+ FixeCadre(PaletteCadre_E1);
+ CadrePlain(X,Y,X+62,Y+20,$9F);
+ EcritUnAttribut(X,Y,15);
+ EcritUnAttribut(X+1,Y,15);
+ Ecrit(X+26,Y,'Processeur',$FC);
+ FixeCadre(PaletteCadre_E2);
+ CadreVide(X+2,Y+2,X+60,Y+5,$9F);
+ Ecrit(X+4,Y+2,' Processeur ',$9E);
+ Ecrit(X+5,Y+3,'Microprocesseur :',$9F);
+ Ecrit(X+23,Y+3,NomMicroprocesseur,$9B);
+ Ecrit(X+8,Y+4,'Coprocesseur :',$9F);
+ Ecrit(X+23,Y+4,NomCoprocesseur,$9B);
+ CadreVide(X+2,Y+6,X+35,Y+11,$9F);
+ Ecrit(X+4,Y+6,' Registre de travail ',$9E);
+ Ecrit(X+8,Y+7,'Accumulateur :',$9F);
+ Ecrit(X+23,Y+7,RegistreAccumulateur,$9B);
+ Ecrit(X+16,Y+8,'Base :',$9F);
+ Ecrit(X+23,Y+8,RegistreBase,$9B);
+ Ecrit(X+12,Y+9,'Compteur :',$9F);
+ Ecrit(X+23,Y+9,RegistreCompteur,$9B);
+ Ecrit(X+15,Y+10,'Donn‚ :',$9F);
+ Ecrit(X+23,Y+10,RegistreDonne,$9B);
+ CadreVide(X+2,Y+12,X+27,Y+18,$9F);
+ Ecrit(X+4,Y+12,' Registre d''Offset ',$9E);
+ Ecrit(X+14,Y+13,'Source :',$9F);
+ Ecrit(X+23,Y+13,RegistreSourceIndex,$9B);
+ Ecrit(X+8,Y+14,'Destinataire :',$9F);
+ Ecrit(X+23,Y+14,RegistreDestinationIndex,$9B);
+ Ecrit(X+9,Y+15,'Instruction :',$9F);
+ Ecrit(X+23,Y+15,RegistreInstructionPointer,$9B);
+ Ecrit(X+16,Y+16,'Base :',$9F);
+ Ecrit(X+23,Y+16,RegistreBasePointer,$9B);
+ Ecrit(X+16,Y+17,'Pile :',$9F);
+ Ecrit(X+23,Y+17,RegistreStackPointer,$9B);
+ CadreVide(X+36,Y+6,X+60,Y+11,$9F);
+ Ecrit(X+38,Y+6,' Registre de Segment ',$9E);
+ Ecrit(X+49,Y+7,'Code :',$9F);
+ Ecrit(X+56,Y+7,RegistreCodeSegment,$9B);
+ Ecrit(X+47,Y+8,'Donn‚e :',$9F);
+ Ecrit(X+56,Y+8,RegistreDataSegment,$9B);
+ Ecrit(X+39,Y+9,'Suppl‚mentaire :',$9F);
+ Ecrit(X+56,Y+9,RegistreExtraSegment,$9B);
+ Ecrit(X+49,Y+10,'Pile :',$9F);
+ Ecrit(X+56,Y+10,RegistreStackSegment,$9B);
+ CadreVide(X+28,Y+12,X+60,Y+15,$9F);
+ Ecrit(X+30,Y+12,' Registre Suppl‚mentaire ',$9E);
+ Ecrit(X+31,Y+13,'Drapeau :',$9F);
+ Ecrit(X+41,Y+13,Copy(RegistreFlags,1,15),$9B);
+ Ecrit(X+41,Y+14,Copy(RegistreFlags,16,12),$9B);
+ AfficheToucheEgale(X+30,Y+17,X+43,Y+17,X+30,Y+19,X+43,Y+19);
+ InstalleClignotement;
+ Touche := LitClavier;
+ DesInstalleClignotement;
+ AfficheBar;
+ FenetreTapiserie(X,Y,X+64,Y+21,173,174,$78,$87);
+End;

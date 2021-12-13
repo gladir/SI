@@ -1,0 +1,48 @@
+(**********************************************************************)
+(*  Logiciel     : SystŠme Information (SYSINFO.PAS)                  *)
+(*  Proc‚dure    : Quitter                                            *)
+(*  Description  : Permette de quitter le systŠme information.        *)
+(**********************************************************************)
+(*  Groupe       : Les Chevaliers de Malte                            *)
+(*  Auteur       : Sylvain Maltais                                    *)
+(*  Date cr‚‚    : 1992/02/27                                         *)
+(*  Date modifi‚ : 1992/02/27                                         *)
+(**********************************************************************)
+(*  Entr‚e       : Aucun                                              *)
+(*  Sortie       : Aucun                                              *)
+(**********************************************************************)
+
+Procedure CertainQuitter;
+Var X,Y : Word;
+Begin
+ AjustePaletteTouche;
+ X := (Colonne - 44) div 2;
+ Y := (Ligne - 4) div 2;
+ FixeCadre(PaletteCadre_E3);
+ CadrePlain(X,Y,X+44,Y+4,$CF);
+ FixeCadre(PaletteCadre_E1);
+ Ecrit(X+2,Y+1,'Etes-vous certain de bien vouloir quitter',$CE);
+ Ecrit(X+16,Y+3,#168+' Oui '+#169,$F1);
+ EcritUnAttribut(X+16,Y+3,$CF);
+ EcritUnAttribut(X+18,Y+3,$FC);
+ EcritUnAttribut(X+22,Y+3,$CF);
+ Ecrit(X+25,Y+3,#168+' Non '+#169,$F2);
+ EcritUnAttribut(X+25,Y+3,$CF);
+ EcritUnAttribut(X+27,Y+3,$FC);
+ EcritUnAttribut(X+31,Y+3,$CF);
+ InstalleClignotement;
+ Repeat
+  Touche := LitClavier;
+ Until (Lo(Touche) in [13,27,78,79,110,111]);
+ DesinstalleClignotement;
+ If(Lo(Touche) in [27,78,110])Then SpeedInitialiseEcran;
+End;
+
+Procedure Quitter;
+Begin
+ SetIntVec($1C,Original1C);
+ DensiteLigne(2);
+ ModeVideo(ModeInitiale,1);
+ OuvreCurseur;
+ Halt;
+End;

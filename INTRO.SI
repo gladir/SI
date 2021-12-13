@@ -1,0 +1,150 @@
+(**********************************************************)
+(* Proc‚dure : Intro                                      *)
+(* Utilit‚   : D‚monstrateur                              *)
+(**********************************************************)
+(* Entr‚e    : Aucun                                      *)
+(* Sortie    : Aucun                                      *)
+(**********************************************************)
+
+Procedure Intro;
+Var X,Y             : Word;
+    Compteur        : Word;
+    Deplace         : Byte;
+    Tableau         : Array[0..867] of Byte;
+    CompteurX       : Byte;
+    CompteurY       : Byte;
+    TaillePageVideo : Word Absolute $0040:$4C;
+    OffSet          : Word;
+    LigneA,LigneB   : Word;
+    X1,Y1,X2,Y2     : Integer;
+    TSeg,TOfs       : Word;
+    Temp            : Word;
+Begin
+ ColorClock := $9F;
+ X := (Colonne - 27) div 2;
+ Y := (Ligne - 14) div 2;
+ FixeCadre(PaletteCadre_E1);
+ CopiePage(3,1);
+ FixePageTravail(2);
+ CadrePlain(0,0,26,13,$9F);
+ EcritUnAttribut(0,0,15);
+ EcritUnAttribut(1,0,15);
+ Ecrit(8,0,'Pr‚sentation',$FC);
+ Ecrit(4,2,'SystŠme Information',$9E);
+ Ecrit(9,4,'Version 1.0',$9F);
+ Ecrit(6,6,'Copyright '+#175+' 1992',$9F);
+ Ecrit(12,8,'par',$9F);
+ Ecrit(2,10,'Les Chevaliers de Malte',$9F);
+ Ecrit(1,6,#176+#177+#178+#250,$97);
+ Ecrit(1,7,#251+#252,$97);
+ Ecrit(3,7,#253,$9B);
+ Ecrit(4,7,#254,$9A);
+ Ecrit(8,12,#168+' Correcte '+#169,$F1);
+ EcritUnAttribut(8,12,$9F);
+ EcritUnAttribut(10,12,$FC);
+ EcritUnAttribut(19,12,$9F);
+ For Compteur := 0 to 13 do
+ Begin
+  Move(Mem[Adresse:OffSetEcranM+(Colonne*Compteur)*2],Tableau[(Compteur*27)*2],62);
+ End;
+ FixePageTravail(0);
+ SegExcEcranM  := Adresse;
+ OfsExcEcranM  := TaillePageVideo;
+ ClaireMemoire(0);
+ AfficheCadreMemoire;
+ FixeCadre(PaletteCadre_E1);
+ BoiteCaractere(0,0,Colonne-1,Ligne,7);
+ For Compteur := 1 to 400 do
+ Begin
+  EcritUnCaractere(Random(Colonne-1),Random(Ligne),246,Random(14)+1);
+ End;
+ InstalleClignotement;
+ CentreEcriture((Ligne div 2)-1,'Les Chevalier de Malte',$1);
+ CentreEcriture((Ligne div 2)+1,'pr‚sente',$1);
+ CadrePlain(Colonne-22,3,Colonne-3,8,$AF);
+ EcritUnAttribut(Colonne-22,3,15);
+ EcritUnAttribut(Colonne-21,3,15);
+ Ecrit(Colonne-20,5,'Programmeur :',$A7);
+ Ecrit(Colonne-20,7,'Sylvain Maltais',$A0);
+ CadrePlain(2,2,11,4,$9F);
+ EcritUnAttribut(2,2,15);
+ EcritUnAttribut(3,2,15);
+ Ecrit(5,2,'Heure',$F0);
+ ExclureEcranM := 1;
+ For Compteur := 0 to 25 do
+ Begin
+  Horloge(3,3);
+  Delay(100);
+ End;
+ DesinstalleClignotement;
+ CentreEcriture((Ligne div 2)-1,'Les Chevaliers de Malte',$0);
+ CentreEcriture((Ligne div 2)+1,'pr‚sente',$0);
+ ClaireBoiteMemoire(2,2,11,4);
+ ClaireBoiteMemoire(Colonne-22,3,Colonne-3,8);
+ TSeg := Adresse;
+ TOfs := TaillePageVideo * 3;
+ For Compteur := 1 to Colonne div 2 do
+ Begin
+  ExclureEcranM := 0;
+  Horloge(3,3);
+  ExclureEcranM := 1;
+   { Affiche les deux bar }
+  Temp := (Compteur * 4) + TOfs;
+  EcritUnCaractere(Compteur*2,0,Mem[TSeg:Temp],Mem[TSeg:Temp+1]);
+  EcritUnCaractere(Compteur*2+1,0,Mem[TSeg:Temp+2],Mem[TSeg:Temp+3]);
+  Temp := (((Colonne * (Ligne+1)) * 2) - (Compteur * 4)) + TOfs;
+  EcritUnCaractere(Colonne-Compteur*2,Ligne,Mem[TSeg:Temp],Mem[TSeg:Temp+1]);
+  EcritUnCaractere(Colonne-Compteur*2+1,Ligne,Mem[TSeg:Temp+2],Mem[TSeg:Temp+3]);
+  Temp := (Colonne div 2);
+  X1 := Minimum0(Temp - Compteur);
+  X2 := MaximumColonne(Temp + Compteur);
+  Y1 := (Ligne div 2) - (Compteur div 2);
+  Y2 := (Ligne div 2) + (Compteur div 2);
+  If(Y1 < 1)Then Y1 := 1;
+  If(Y2 > Ligne-1)Then Y2 := Ligne-1;
+  FenetreTapiserie(X1,Y1,X2,Y1,173,174,$78,$87);
+  FenetreTapiserie(X1,Y2,X2,Y2,173,174,$78,$87);
+  FenetreTapiserie(X1,Y1,X1,Y2,173,174,$78,$87);
+  FenetreTapiserie(X2,Y1,X2,Y2,173,174,$78,$87);
+  Delay(100);
+ End;
+ Tapiserie(1,Ligne-1,173,174,$78,$87);
+ ExclureEcranM := 0;
+  { Pr‚pare l'‚cran }
+ AfficheBar;
+ DerniereLigne;
+ CopiePage(0,2);
+  { Affiche l'intro }
+ If(Ligne = 24)Then
+ Begin
+  LigneA := 5;
+  LigneB := 6;
+ End
+  else
+ Begin
+  LigneA := (Ligne-14) div 2;
+  LigneB := (Ligne-13) div 2;
+ End;
+ InstalleClignotement;
+ For Deplace := 2 to (Colonne - 27) div 2 do
+ Begin
+  For Compteur := 0 to 6 do
+  Begin
+   Horloge(3,3);
+   OffSet := (Deplace-1+Colonne*(Compteur*2+LigneA))*2;
+   MemW[TSeg:OffSet] := MemW[TSeg:OffSet+TaillePageVideo*2];
+   Move(Tableau[(Compteur*27*2)*2],Mem[TSeg:(Deplace+Colonne*(Compteur*2+LigneA))*2],27*2);
+   Move(Tableau[(Compteur*27*2)*2+27*2],Mem[TSeg:((Colonne-28)-Deplace+Colonne*(Compteur*2+LigneB))*2],27*2);
+   OffSet := ((Colonne-1)-Deplace+Colonne*(Compteur*2+LigneB))*2;
+   MemW[TSeg:OffSet] := MemW[TSeg:OffSet+TaillePageVideo*2];
+  End;
+   { Petite pause }
+  Delay(40);
+ End;
+ Clock(3,3);
+ Touche := LitClavier;
+ DesinstalleClignotement;
+ FixeCadre(PaletteCadre_E2);
+ If Not((Lo(Touche)=0)and(Hi(Touche)=45))Then CopiePage(3,0);
+ ColorClock := $F0;
+End;

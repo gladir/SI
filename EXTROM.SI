@@ -1,0 +1,27 @@
+Procedure ExtensionROM(X,Y:Byte);
+Begin
+ If(TesteSB2F=1)Then
+ Begin
+  SelecteDisque;
+  FixeCadre(PaletteCadre_E1);
+  CadrePlain(X,Y,X+34,Y+11,$9F);
+  EcritUnAttribut(X,Y,15);
+  EcritUnAttribut(X+1,Y,15);
+  Ecrit(X+11,Y,'Extension ROM',$FC);
+  FixeCadre(PaletteCadre_E2);
+  CadreVide(X+2,Y+2,X+32,Y+6,$9F);
+  Ecrit(X+4,Y+2,' Super BIOS II Formatter ',$9E);
+  Ecrit(X+6,Y+3,'Modäle :',$9F);
+  Ecrit(X+15,Y+3,ModeleSB2F,$9B);
+  Ecrit(X+5,Y+4,'Version :',$9F);
+  Ecrit(X+15,Y+4,VerSB2F,$9B);
+  Ecrit(X+8,Y+5,'Date :',$9F);
+  Ecrit(X+15,Y+5,DateSB2F,$9B);
+  AfficheTouche(X+1,Y+8,X+13,Y+8,X+23,Y+8,X+13,Y+10);
+  InstalleClignotement;
+  Touche := LitClavier;
+  DesinstalleClignotement;
+  AfficheBar;
+  FenetreTapiserie(X,Y,X+36,Y+13,173,174,$78,$87);
+ End;
+End;

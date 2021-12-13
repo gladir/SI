@@ -1,0 +1,236 @@
+(*******************************************************************)
+(*  Proc‚dure   : Physique                                         *)
+(*  Description : Retourne les informations physique sur les       *)
+(*                disques du systŠme BIOS.                         *)
+(*******************************************************************)
+(*  Entr‚e      : X et Y                                           *)
+(*  Sortie      : Aucun                                            *)
+(*******************************************************************)
+
+Procedure Physique(X,Y:Byte);
+Const Position : Byte = 0;
+Var Tableau      : Array[0..255] of Byte;
+    Taille       : Array[0..255] of LongInt;
+    Compteur     : Byte;
+    NombreDisque : Byte;
+    YC           : Byte;
+    Registre     : Registers;
+
+ Function Hex2(Nombre:Byte):String;
+ Begin
+  Hex2 := PaletteHex[Nombre shr 4] +
+          PaletteHex[Nombre and 15];
+ End;
+
+ Function NombreDisquette:Integer;
+ Var Registre : Registers;
+     Compteur : Byte;
+     Temp     : Byte;
+ Begin
+  With Registre do
+  Begin
+   AH := $08;
+   DL := $00;
+   Intr($13,Registre);
+   If(Flags and 1=1)Then
+   Begin
+    Temp := AH;
+    NombreDisquette := 0 - Temp;
+   End
+    Else
+   NombreDisquette := DL;
+  End;
+ End;
+
+ Function NombreDisqueDur:Integer;
+ Begin
+  NombreDisqueDur := Mem[$0040:$75];
+ End;
+
+ Function TypeDisque(Numero:Byte):Integer;
+ Var Registre : Registers;
+ Begin
+  With Registre do
+  Begin
+   If(Numero >= $80)Then
+   Begin
+    If(NombreDisqueDur > Numero-$80)Then TypeDisque := $FD
+                                    Else TypeDisque := $00;
+   End
+    else
+   Begin
+    AH := $08;
+    DL := Numero;
+    Intr($13,Registre);
+    If(Flags and 1=0)Then TypeDisque := BL
+                     Else TypeDisque := - AH;
+   End;
+  End;
+ End;
+
+ Function TailleDisqueDur(Numero:Byte):Integer;
+ Var Segment         : Word;
+     OffSet          : Word;
+     Tete            : Word;
+     Cylindre        : Word;
+     Secteur         : Word;
+     OctetParSecteur : Word;
+     Registre        : Registers;
+ Begin
+  With Registre do
+  Begin
+   AH := $08;
+   DL := Numero;
+   Intr($13,Registre);
+   If(Flags and 1=0)Then
+   Begin
+    Cylindre := CL;
+    Cylindre := Cylindre and 192;
+    Cylindre := Cylindre shl 2;
+    Cylindre := Cylindre + CH;
+    Secteur  := CL;
+    Secteur  := Secteur and 63;
+    Tete     := DH;
+    WriteLn(Cylindre);
+    WriteLn(Secteur);
+    WriteLn(Tete);
+     { Lecture de l'adresse d'un interruption }
+    AH := $35;
+    AL := $1E;
+    MsDos(Registre);
+    Segment := ES;
+    OffSet  := BX;
+    OctetParSecteur := 1 Shl (7 + Mem[Segment:OffSet+3]);
+    WriteLn(OctetParSecteur);
+    TailleDisqueDur := Tete * (Cylindre * (Secteur * OctetParSecteur));
+   End
+    else
+   TailleDisqueDur := -AH;
+  End;
+ End;
+
+ Function Data(Numero:Byte):String;
+ Begin
+  Data := Hex2(Numero);
+ End;
+
+ Function Nom(Numero:Byte):String;
+ Var Temp : String;
+ Begin
+  Case Tableau[Numero] of
+   $00 : Nom := 'Absent';
+   $01 : Nom := '360 Ko, 40 pistes, 5.25 pouces';
+   $02 : Nom := '1.2 Mo, 80 pistes, 5.25 pouces';
+   $03 : Nom := '720 Ko, 80 pistes, 3.5 pouces';
+   $04 : Nom := '1.44 Ko, 80 pistes, 3.5 pouces';
+   $FD : Begin
+          Str(Taille[Numero],Temp);
+          Nom := 'Disque dur, '+Temp+' octets';
+         End;
+    else
+   Nom := 'Inconnu';
+  End;
+ End;
+
+Begin
+ Ecrit(3,Ligne,'Un instant S.V.P. lecture de la configuration en cours...',$F0);
+  { Lecture des types d'unit‚ }
+ FillChar(Tableau,SizeOf(Tableau),0);
+ FillChar(Taille,SizeOf(Taille),0);
+ For Compteur := 0 to 255 do
+ Begin
+  Tableau[Compteur] := TypeDisque(Compteur);
+  If(Tableau[Compteur] = $FD)Then
+  Begin
+   Taille[Compteur]  := TailleDisqueDur(Compteur);
+  End;
+  Ecrit(Colonne-4,0,Hex2(Compteur)+#26,$F0);
+ End;
+ Ecrit(Colonne-4,0,'   ',$F0);
+ ClaireLigne(Ligne,32,$F0);
+ If(NombreDisquette < 0)Then NombreDisque := NombreDisqueDur
+                        Else NombreDisque := NombreDisquette + NombreDisqueDur;
+ SelecteDisque;
+ Move(PaletteCadre_E1,CadreFormat,9);
+ CadrePlain(X,Y,X+66,Y+14,$9F);
+ EcritUnAttribut(X,Y,15);
+ EcritUnAttribut(X+1,Y,15);
+ Ecrit(X+26,Y,'Disque physique',$FC);
+ Move(PaletteCadre_E2,CadreFormat,9);
+ CadreVide(X+2,Y+2,X+52,Y+13,$9F);
+ Ecrit(X+4,Y+3,'Num‚ro  Description',$9E);
+ Ecrit(X+4,Y+4,'------- ---------------------------------------',$9F);
+ For YC := 0 to 7 do
+ Begin
+  Ecrit(X+1,Y+5+YC,#158+#159,$F0);
+  Ecrit(X+4,Y+5+YC,Data(YC),$9B);
+  Ecrit(X+12,Y+5+YC,Nom(YC),$9F);
+ End;
+ Ecrit(X+1,Y+5,#164+#165,$F);
+ Ecrit(X+1,Y+12,#248+#249,$F);
+ AfficheToucheEgale(X+54,Y+4,X+54,Y+6,X+54,Y+8,X+54,Y+10);
+ InstalleClignotement;
+ YC := 0;
+ Repeat
+  Selecte(X+1,Y+6+((6 * Position) div 255),X+2,$F); { Position bar }
+  Selecte(X+3,Y+5+YC,X+51,$B);
+  Touche := LitClavier;
+  Selecte(X+3,Y+5+YC,X+26,$9B);
+  Selecte(X+12,Y+5+YC,X+51,$9F);
+  Selecte(X+1,Y+6+((6 * Position) div 255),X+2,$F0); { Position bar }
+  Case Lo(Touche) of
+   0 : Begin
+        Case Hi(Touche) of
+         72 : Begin
+               If(Position > 0)Then
+               Begin
+                Dec(Position);
+                If(YC > 0)Then Dec(YC)
+                 else
+                Begin
+                 With Registre do
+                 Begin
+                  AX := $0701;
+                  BH := $9B;
+                  CL := X + 3;
+                  CH := Y + 5;
+                  DL := X + 51;
+                  DH := Y + 12;
+                  Intr($10,Registre);
+                 End;
+                 Ecrit(X+4,Y+5+YC,Data(Position),$9B);
+                 Ecrit(X+12,Y+5+YC,Nom(Position),$9F);
+                End;
+               End;
+              End;
+         80 : Begin
+               If(Position < 255)Then
+               Begin
+                Inc(Position);
+                If(YC < 7)Then Inc(YC)
+                 else
+                Begin
+                 With Registre do
+                 Begin
+                  AX := $0601;
+                  BH := $9B;
+                  CL := X + 3;
+                  CH := Y + 5;
+                  DL := X + 51;
+                  DH := Y + 12;
+                  Intr($10,Registre);
+                 End;
+                 Ecrit(X+4,Y+5+YC,Data(Position),$9B);
+                 Ecrit(X+12,Y+5+YC,Nom(Position),$9F);
+                End;
+               End;
+              End;
+        End;
+       End;
+  End;
+ Until (Lo(Touche) in [27,32,65,97,83,115,78,110]);
+ DesinstalleClignotement;
+ AfficheBar;
+ Tapiserie(1,Ligne-1,173,174,$78,$87);
+ ClaireLigne(Ligne,32,$F0);
+End;

@@ -1,0 +1,32 @@
+physique.si Systäme Info, Disque Physique
+intro.si Systäme Info, Module Introduction
+clavier.si Systäme Info, Module Clavier
+umc.si Systäme Info, Usage mÇmoire conv.
+process.si Systäme Info, Module Processeur
+equipe.si Systäme Info, Module Equipement
+initecr.si Systäme Info, Initialise Ecran
+speedvid.si Systäme Info, Module vidÇo
+dosshell.si Systäme Info, Module DOS Shell
+souris.si Systäme Info, Module Souris
+extrom.si Systäme Info, Extension ROM
+biosinfo.si Systäme Info, Module BIOS VidÇo
+system.si Systäme Info, Module Systäme
+tabparm.si Systäme Info, Module Table Param.
+resident.si Systäme Info, Module RÇsident
+affkey.si Systäme Info, Affiche les touches
+infovid.si Systäme Info, Module Info VidÇo
+testmode.si Systäme Info, Module Teste Mode
+fenetre.si Systäme Info, Module Fenàtre
+quitte.si Systäme Info, ProcÇdure Quitter
+infovga.si Systäme Info, Module VGA/PS2
+bar.si Systäme Info, Module Bar Menu
+flash.si Systäme Info, Clignotement
+clock.si Systäme Info, Module Horloge
+menu.si Systäme Info, Module Menu dÇroulant
+mapbios.si Systäme Info, Module RAM BIOS
+perfproc.si Systäme Info, Module Performance
+pal_e1.pas Palette caractäre E0001
+sysinfo.pas Programme Systäme Info
+question.pas UnitÇ Question
+ecranm.pas UnitÇ Ecran Malte
+fichier.pas UnitÇ Fichier

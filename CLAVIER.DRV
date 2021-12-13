@@ -1,0 +1,44 @@
+{ Driver Clavier }
+
+Var SaveInt09 : Pointer;
+
+Procedure Call_Int(Vector:Pointer);
+Begin
+ InLine($9C/          { PushF }
+        $FA/          { CLI }
+        $FF/$5E/$04); { Call [BP+4] }
+End;
+
+Procedure Clavier09h;
+Interrupt;
+Var Valeur : Byte;
+Begin
+ If(Mem[$FFFF:$E] > 252)Then { PC, XT, PC Junior ? }
+ Begin
+  Valeur := Port[$60] and 127;
+  If(Valeur in [$57,$58])Then
+  Begin
+   MemW[$0040:$001A]            := (MemW[$0040:$001A] + 6) and 31;
+   Mem[$0040:MemW[$0040:$001A]] := 0;
+   If(Mem[$0040:$17] and 3 <> 0)Then
+   Begin
+    Mem[$0040:MemW[$0040:$001A]+1] := Valeur + (135-87);
+   End
+    else
+   If(Mem[$0040:$17] and 4=4)Then
+   Begin
+    Mem[$0040:MemW[$0040:$001A]+1] := Valeur + (137-87);
+   End
+    else
+   If(Mem[$0040:$17] and 8=8)Then
+   Begin
+    Mem[$0040:MemW[$0040:$001A]+1] := Valeur + (139-87);
+   End
+    else
+   Begin
+    Mem[$0040:MemW[$0040:$001A]+1] := Valeur + (133-87);
+   End;
+  End;
+ End;
+ Call_Int(SaveInt09);
+End;

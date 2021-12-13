@@ -1,0 +1,100 @@
+(********************************************************************)
+(*  Programme    : SystŠme Information 1.01                         *)
+(*  Module       : Souris                                           *)
+(*  Description  : Gestion de la Souris de maniŠre graphique.       *)
+(********************************************************************)
+(*  Auteur       : Sylvain Maltais                                  *)
+(*  Date cr‚‚    : 1992/02/20                                       *)
+(*  Date modifi‚ : 1992/02/21                                       *)
+(********************************************************************)
+(*  RequŠre      : þ Turbo Pascal 6                                 *)
+(*                 þ Souris                                         *)
+(*                 þ Moniteur EGA et plus                           *)
+(********************************************************************)
+
+(********************************************************************)
+(*                            Variable                              *)
+(********************************************************************)
+
+Var XMouse  : Byte;
+    YMouse  : Byte;
+    AncienA : Byte;
+    AncienB : Byte;
+    SegCar  : Word;
+    OfsCar  : Word;
+
+(********************************************************************)
+(*                            Proc‚dure                             *)
+(********************************************************************)
+
+Procedure ActualiseSouris; Forward;
+Procedure AfficheSouris(X,Y:Word); Forward;
+Procedure EffaceSouris; Forward;
+Procedure EtatSouris(X,Y,Bouton:Word); Forward;
+Procedure InitSouris; Forward;
+
+Procedure ActualiseSouris;
+Var X,Y,Bouton : Word;
+Begin
+ EtatSouris(X,Y,Bouton);
+{ If(XMouse <> X)or(YMouse<>Y)Then AfficheSouris(X,Y);}
+End;
+
+Procedure AfficheSouris(X,Y:Word);
+Var Table    : Array[0..27] of Byte;
+    Ligne    : Word;
+    Compteur : Byte;
+Begin
+ EffaceSouris;
+ XMouse  := X;
+ YMouse  := Y;
+ AncienA := Mem[Adresse:((X div 8)+Ligne)*2];
+ AncienB := Mem[Adresse:((X div 8)+Ligne)*2];
+ Ligne := (Y div 8) * Colonne;
+ For Compteur := 0 to 13 do
+ Begin
+  Table[Compteur]  := Lo(Masque[Compteur] shl (8-(X mod 8))) XOR
+                       (Mem[SegCar:OfsCar+Compteur+
+                       14*Mem[Adresse:(X div 8)*2+Ligne]]);
+  Table[Compteur+14] := Hi(Masque[Compteur] shl (8-(X mod 8))) XOR
+                       (Mem[SegCar:OfsCar+Compteur+
+                       14*Mem[Adresse:((X div 8)+1+Ligne)*2]]);
+ End;
+ ChargePolice(245,0,14,2,@Table);
+ Mem[Adresse:((X div 8)+Ligne)*2] := 245;
+ Mem[Adresse:((X div 8)+Ligne)*2] := 246;
+End;
+
+Procedure EffaceSouris;
+Begin
+ Mem[Adresse:(XMouse+YMouse*Colonne)*2]   := AncienA;
+ Mem[Adresse:(1+XMouse+YMouse*Colonne)*2] := AncienB;
+End;
+
+Procedure EtatSouris(X,Y,Bouton:Word);
+Var Registre : Registers;
+Begin
+ With Registre do
+ Begin
+  AH := $03;
+  Intr($33,Registre);
+  Bouton := BX;
+  X      := CX;
+  Y      := DX;
+ End;
+End;
+
+Procedure InitSouris;
+Var Registre : Registers;
+Begin
+ With Registre do
+ Begin
+  AX := $1130;
+  BH := $02;
+  Intr($10,Registre);
+  SegCar := ES;
+  OfsCar := BP;
+  XMouse  := 0;
+  YMouse  := 0;
+ End;
+End;

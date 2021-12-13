@@ -1,0 +1,122 @@
+(********************************************************************)
+(*  Logiciel      : SystŠme Information (SYSINFO.PAS)               *)
+(*  Module        : Bar                                             *)
+(*  Description   : Divers proc‚dure de bar de menu.                *)
+(********************************************************************)
+(*  Groupe        : Les Chevaliers de Matle                         *)
+(*  Auteur        : Sylvain Maltais                                 *)
+(*  Date cr‚‚     : 1992/02/27                                      *)
+(*  Date modifi‚  : 1992/02/27                                      *)
+(********************************************************************)
+(*  RequŠre       : þ Turbo Pascal 6                                *)
+(*                  þ Logiciel SystŠme Information                  *)
+(********************************************************************)
+
+(********************************************************************)
+(*  Proc‚dure   : Affiche Bar                                       *)
+(*  Description : Affiche la bar de menu.                           *)
+(********************************************************************)
+(*  Entr‚e      : Aucun                                             *)
+(*  Sortie      : Aucun                                             *)
+(********************************************************************)
+
+Procedure AfficheBar;
+Begin
+ ClaireLigne(0,32,$F0);
+ EcritUnCaractere(2,0,247,$FC);
+ EcritChoix(5,0,'Vid‚o',$FC,MenuNormal);
+ EcritChoix(12,0,'Processeur',$FC,MenuNormal);
+ EcritChoix(24,0,'M‚moire',$FC,MenuNormal);
+ EcritChoix(33,0,'Disque',$FC,MenuNormal);
+ EcritChoix(41,0,'Communication',$FC,MenuNormal);
+ EcritChoix(56,0,'SystŠme',$FC,MenuNormal);
+ EcritChoix(65,0,'Raport',$FC,MenuNormal);
+ EcritChoix(73,0,'Quitte',$FC,MenuNormal);
+End;
+
+(********************************************************************)
+(*  Proc‚dure   : Affiche Bar                                       *)
+(*  Description : Affiche la bar de menu.                           *)
+(********************************************************************)
+(*  Entr‚e      : Aucun                                             *)
+(*  Sortie      : Aucun                                             *)
+(********************************************************************)
+
+Procedure SelecteQuitte;
+Begin
+ Selecte(0,0,Colonne-1,MenuNormal);
+ Selecte(72,0,79,$B);
+End;
+
+(********************************************************************)
+(*  Proc‚dure   : Affiche Bar                                       *)
+(*  Description : Affiche la bar de menu.                           *)
+(********************************************************************)
+(*  Entr‚e      : Aucun                                             *)
+(*  Sortie      : Aucun                                             *)
+(********************************************************************)
+
+Procedure SelecteDisque;
+Begin
+ Selecte(0,0,Colonne-1,MenuNormal);
+ Selecte(32,0,39,$B);
+End;
+
+(********************************************************************)
+(*  Proc‚dure   : Selecte Vid‚o                                     *)
+(*  Description : Affiche un bar de couleur sur le menu de vid‚o.   *)
+(********************************************************************)
+(*  Entr‚e      : Aucun                                             *)
+(*  Sortie      : Aucun                                             *)
+(********************************************************************)
+
+Procedure SelecteVideo;
+Begin
+ Selecte(0,0,Colonne-1,MenuNormal);
+ Selecte(4,0,10,$B);
+End;
+
+(********************************************************************)
+(*  Proc‚dure   : Selecte Processeur                                *)
+(*  Description : Affiche un bar de couleur sur le menu de          *)
+(*                processeur.                                       *)
+(********************************************************************)
+(*  Entr‚e      : Aucun                                             *)
+(*  Sortie      : Aucun                                             *)
+(********************************************************************)
+
+Procedure SelecteProcesseur;
+Begin
+ Selecte(0,0,Colonne-1,MenuNormal);
+ Selecte(11,0,22,$B);
+End;
+
+(********************************************************************)
+(*  Proc‚dure   : Selecte M‚moire                                   *)
+(*  Description : Affiche un bar de couleur sur le menu de          *)
+(*                M‚moire.                                          *)
+(********************************************************************)
+(*  Entr‚e      : Aucun                                             *)
+(*  Sortie      : Aucun                                             *)
+(********************************************************************)
+
+Procedure SelecteMemoire;
+Begin
+ Selecte(0,0,Colonne-1,MenuNormal);
+ Selecte(23,0,31,$B);
+End;
+
+(********************************************************************)
+(*  Proc‚dure   : Selecte M‚moire                                   *)
+(*  Description : Affiche un bar de couleur sur le menu de          *)
+(*                M‚moire.                                          *)
+(********************************************************************)
+(*  Entr‚e      : Aucun                                             *)
+(*  Sortie      : Aucun                                             *)
+(********************************************************************)
+
+Procedure SelecteCommunication;
+Begin
+ Selecte(0,0,Colonne-1,MenuNormal);
+ Selecte(40,0,54,$B);
+End;

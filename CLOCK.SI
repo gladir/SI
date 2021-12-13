@@ -1,0 +1,24 @@
+Procedure Horloge(X,Y:Byte);
+Var Heure,Minute,Seconde,Tock : Word;
+    Chaine,Temp               : String;
+Begin
+ GetTime(Heure,Minute,Seconde,Tock);
+ Str(Heure:2,Temp);
+ Chaine := Temp;
+ Str(Minute,Temp);
+ If(Temp[0] = #1)Then Temp := '0' + Temp;
+ Chaine := Chaine + ':' + Temp + ':';
+ Str(Seconde,Temp);
+ If(Temp[0] = #1)Then Temp := '0' + Temp;
+ Chaine := Chaine + Temp;
+ Ecrit(X,Y,Chaine,ColorClock);
+End;
+
+Procedure Clock(X,Y:Byte);
+Var Compteur : Byte;
+Begin
+ Repeat
+  Compteur := (Compteur + 1) and $FF;
+  If(Compteur = 1)Then Horloge(X,Y);
+ Until (ClavierPrete = 1);
+End;

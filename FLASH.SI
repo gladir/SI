@@ -1,0 +1,41 @@
+(********************************************************************)
+(*  Logiciel     : SystŠme Information (SYSINFO.PAS)                *)
+(*  Module       : Clignotement                                     *)
+(*  Description  : Permet de faire clignot‚ les touches.            *)
+(********************************************************************)
+(*  Groupe       : Les Chevaliers de Malte                          *)
+(*  Auteur       : Sylvain Maltais                                  *)
+(*  Date Cr‚‚    : 1992/02/27                                       *)
+(*  Date modifi‚ : 1992/02/27                                       *)
+(********************************************************************)
+(*  RequŠre      : þ Turbo Pascal 6                                 *)
+(*                 þ Logiciel SystŠme Information                   *)
+(********************************************************************)
+
+(********************************************************************)
+(*  Proc‚dure   : Installe Clignotement                             *)
+(*  Description : Installe une proc‚dure de clignotement des        *)
+(*                touches.                                          *)
+(********************************************************************)
+(*  Entr‚e      : Aucun                                             *)
+(*  Sortie      : Aucun                                             *)
+(********************************************************************)
+
+Procedure InstalleClignotement;
+Begin
+ SetIntVec($1C,@Timer1C);
+End;
+
+(********************************************************************)
+(*  Proc‚dure   : D‚sinstalle Clignotement                          *)
+(*  Description : D‚sinstalle une proc‚dure de clignotement des     *)
+(*                touches.                                          *)
+(********************************************************************)
+(*  Entr‚e      : Aucun                                             *)
+(*  Sortie      : Aucun                                             *)
+(********************************************************************)
+
+Procedure DesinstalleClignotement;
+Begin
+ SetIntVec($1C,Original1C);
+End;

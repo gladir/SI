@@ -1,0 +1,287 @@
+(********************************************************************)
+(*  Proc‚dure   : Performance Processeur                            *)
+(*  Description : Teste les performances du processeur et les       *)
+(*                affiche dans une fenˆtre.                         *)
+(********************************************************************)
+(*  Entr‚e      : Aucun                                             *)
+(*  Sortie      : Aucun                                             *)
+(********************************************************************)
+
+Procedure PerformanceProcesseur(X,Y:Byte);
+Const Comp = ' ñ 200 par seconde';
+Var Temp   : LongInt;
+    Chaine : String;
+
+ Function VitesseIncrementation:LongInt;
+ Const Vitesse : LongInt = 0;
+ Var Nombre : LongInt;
+ Begin
+  If(Vitesse = 0)Then
+  Begin
+   Nombre := 0;
+   Repeat Until (MemW[$0040:$6C] and $F = $F);
+   Repeat
+    Inc(Nombre);
+   Until (MemW[$0040:$6C] and $F = $E);
+   Vitesse := Nombre;
+   VitesseIncrementation := Nombre;
+  End
+   else
+  VitesseIncrementation := Vitesse;
+ End;
+
+ Function VitesseDecrementation:LongInt;
+ Const Vitesse : LongInt = 0;
+ Var Nombre : LongInt;
+ Begin
+  If(Vitesse = 0)Then
+  Begin
+   Nombre := $FFFFFFFF;
+   Repeat Until (MemW[$0040:$6C] and $F = $F);
+   Repeat
+    Dec(Nombre);
+   Until (MemW[$0040:$6C] and $F = $E);
+   VitesseDecrementation := Not(Nombre);
+   Vitesse := Not(Nombre);
+  End
+   else
+  VitesseDecrementation := Vitesse;
+ End;
+
+ Function VitesseAddition:LongInt;
+ Const Vitesse : LongInt = 0;
+ Var Nombre : LongInt;
+     Cob    : Word;
+ Begin
+  If(Vitesse = 0)Then
+  Begin
+   Nombre := 0;
+   Cob    := 1;
+   Repeat Until (MemW[$0040:$6C] and $F = $F);
+   Repeat
+    Nombre := Cob + Nombre;
+   Until (MemW[$0040:$6C] and $F = $E);
+   VitesseAddition := Nombre;
+   Vitesse := Nombre;
+  End
+   else
+  VitesseAddition := Vitesse;
+ End;
+
+ Function VitesseSoustraction:LongInt;
+ Const Vitesse : LongInt = 0;
+ Var Nombre : LongInt;
+     Cob    : Word;
+ Begin
+  If(Vitesse = 0)Then
+  Begin
+   Nombre := $FFFFFFFF;
+   Cob    := 1;
+   Repeat Until (MemW[$0040:$6C] and $F = $F);
+   Repeat
+    Nombre := Nombre - Cob;
+   Until (MemW[$0040:$6C] and $F = $E);
+   VitesseSoustraction := Not(Nombre);
+   Vitesse := Not(Nombre);
+  End
+   else
+  VitesseSoustraction := Vitesse;
+ End;
+
+ Function VitesseMultiplication:LongInt;
+ Const Vitesse : LongInt = 0;
+ Var Nombre : LongInt;
+     Mult   : Word;
+     Cob    : Word;
+ Begin
+  If(Vitesse = 0)Then
+  Begin
+   Mult   := 2;
+   Cob    := 1;
+   Nombre := 0;
+   Repeat Until (MemW[$0040:$6C] and $F = $F);
+   Repeat
+    Mult := Cob * Mult;
+    Inc(Nombre);
+   Until (MemW[$0040:$6C] and $F = $E);
+   VitesseMultiplication := Nombre;
+   Vitesse := Nombre;
+  End
+   else
+  VitesseMultiplication := Vitesse;
+ End;
+
+ Function VitesseDivision:LongInt;
+ Const Vitesse : LongInt = 0;
+ Var Nombre : LongInt;
+     Mult   : Word;
+     Cob    : Word;
+ Begin
+  If(Vitesse = 0)Then
+  Begin
+   Mult   := 2;
+   Cob    := 1;
+   Nombre := 0;
+   Repeat Until (MemW[$0040:$6C] and $F = $F);
+   Repeat
+    Mult := Mult div Cob;
+    Inc(Nombre);
+   Until (MemW[$0040:$6C] and $F = $E);
+   VitesseDivision := Nombre;
+   Vitesse := Nombre;
+  End
+   else
+  VitesseDivision := Vitesse;
+ End;
+
+ Function VitesseET:LongInt;
+ Const Vitesse : LongInt = 0;
+ Var Nombre : LongInt;
+ Begin
+  If(Vitesse = 0)Then
+  Begin
+   Nombre := 0;
+   Repeat Until (MemW[$0040:$6C] and $F = $F);
+   Repeat
+    Nombre := (Nombre + 1) and $FFFFFFFF;
+   Until (MemW[$0040:$6C] and $F = $E);
+   VitesseEt := Nombre;
+   Vitesse := Nombre;
+  End
+   else
+  VitesseEt := Vitesse;
+ End;
+
+ Function VitesseOu:LongInt;
+ Const Vitesse : LongInt = 0;
+ Var Nombre : LongInt;
+     Cob    : Word;
+ Begin
+  If(Vitesse = 0)Then
+  Begin
+   Nombre := 0;
+   Cob    := 0;
+   Repeat Until (MemW[$0040:$6C] and $F = $F);
+   Repeat
+    Nombre := (Nombre + 1) or Cob;
+   Until (MemW[$0040:$6C] and $F = $E);
+   VitesseOu := Nombre;
+   Vitesse := Nombre;
+  End
+   else
+  VitesseOu := Vitesse;
+ End;
+
+ Function VitesseOuExclusif:LongInt;
+ Const Vitesse : LongInt = 0;
+ Var Nombre : LongInt;
+     Cob    : Word;
+ Begin
+  If(Vitesse = 0)Then
+  Begin
+   Nombre := 0;
+   Cob    := 0;
+   Repeat Until (MemW[$0040:$6C] and $F = $F);
+   Repeat
+    Nombre := (Nombre + 1) xor Cob;
+   Until (MemW[$0040:$6C] and $F = $E);
+   VitesseOuExclusif := Nombre;
+   Vitesse := Nombre;
+  End
+   else
+  VitesseOuExclusif := Vitesse;
+ End;
+
+ Function VitesseNot:LongInt;
+ Const Vitesse : LongInt = 0;
+ Var Nombre : LongInt;
+     Cob    : Word;
+ Begin
+  If(Vitesse = 0)Then
+  Begin
+   Nombre := 0;
+   Cob    := 0;
+   Repeat Until (MemW[$0040:$6C] and $F = $F);
+   Repeat
+    Inc(Nombre);
+    Cob := - Cob;
+   Until (MemW[$0040:$6C] and $F = $E);
+   VitesseNot := Nombre;
+   Vitesse := Nombre;
+  End
+   else
+  VitesseNot := Vitesse;
+ End;
+
+Begin
+ SelecteProcesseur;
+ FixeCadre(PaletteCadre_E3);
+ CadrePlain((Colonne div 2) - 10,(Ligne div 2)-2,
+            (Colonne div 2) + 10,(Ligne div 2)+1,$9F);
+ CentreEcriture(Ligne div 2-1,'Teste vitesse :',$9F);
+ CentreEcriture(Ligne div 2,'Incr‚mentation',$9E);
+ Temp := VitesseIncrementation;
+ CentreEcriture(Ligne div 2,'D‚cr‚mentation',$9E);
+ Temp := VitesseDecrementation;
+ CentreEcriture(Ligne div 2,'   Addition   ',$9E);
+ Temp := VitesseAddition;
+ CentreEcriture(Ligne div 2,' Soustraction ',$9E);
+ Temp := VitesseSoustraction;
+ CentreEcriture(Ligne div 2,'Multiplication',$9E);
+ Temp := VitesseMultiplication;
+ CentreEcriture(Ligne div 2,'   Division   ',$9E);
+ Temp := VitesseDivision;
+ CentreEcriture(Ligne div 2,'      Et      ',$9E);
+ Temp := VitesseEt;
+ CentreEcriture(Ligne div 2,'      Ou      ',$9E);
+ Temp := VitesseOu;
+ CentreEcriture(Ligne div 2,'  Ou exclusif ',$9E);
+ Temp := VitesseOuExclusif;
+ CentreEcriture(Ligne div 2,'   N‚gation   ',$9E);
+ Temp := VitesseNot;
+ FixeCadre(PaletteCadre_E1);
+ CadrePlain(X,Y,X+62,Y+16,$9F);
+ EcritUnAttribut(X,Y,15);
+ EcritUnAttribut(X+1,Y,15);
+ Ecrit(X+20,Y,'Performance du processeur',$FC);
+ FixeCadre(PaletteCadre_E2);
+ CadreVide(X+2,Y+2,X+46,Y+15,$9F);
+ Ecrit(X+3,Y+3,'Op‚ration      Vitesse',$9E);
+ Ecrit(X+3,Y+4,'-------------- ----------------------------',$9F);
+ Ecrit(X+3,Y+5,'Incr‚mentation',$9F);
+ Str(VitesseIncrementation,Chaine);
+ Ecrit(X+18,Y+5,Chaine+Comp,$9B);
+ Ecrit(X+3,Y+6,'D‚cr‚mentation',$9F);
+ Str(VitesseDecrementation,Chaine);
+ Ecrit(X+18,Y+6,Chaine+Comp,$9B);
+ Ecrit(X+9,Y+7,'Addition',$9F);
+ Str(VitesseAddition,Chaine);
+ Ecrit(X+18,Y+7,Chaine+Comp,$9B);
+ Ecrit(X+5,Y+8,'Soustraction',$9F);
+ Str(VitesseSoustraction,Chaine);
+ Ecrit(X+18,Y+8,Chaine+Comp,$9B);
+ Ecrit(X+3,Y+9,'Multiplication',$9F);
+ Str(VitesseMultiplication,Chaine);
+ Ecrit(X+18,Y+9,Chaine+Comp,$9B);
+ Ecrit(X+9,Y+10,'Division',$9F);
+ Str(VitesseDivision,Chaine);
+ Ecrit(X+18,Y+10,Chaine+Comp,$9B);
+ Ecrit(X+15,Y+11,'Et',$9F);
+ Str(VitesseEt,Chaine);
+ Ecrit(X+18,Y+11,Chaine+Comp,$9B);
+ Ecrit(X+15,Y+12,'Ou',$9F);
+ Str(VitesseOu,Chaine);
+ Ecrit(X+18,Y+12,Chaine+Comp,$9B);
+ Ecrit(X+6,Y+13,'Ou exclusif',$9F);
+ Str(VitesseOuExclusif,Chaine);
+ Ecrit(X+18,Y+13,Chaine+Comp,$9B);
+ Ecrit(X+9,Y+14,'N‚gation',$9F);
+ Str(VitesseNot,Chaine);
+ Ecrit(X+18,Y+14,Chaine+Comp,$9B);
+ AfficheToucheEgale(X+49,Y+3,X+49,Y+5,X+49,Y+7,X+49,Y+9);
+ InstalleClignotement;
+ Clock(X+53,Y);
+ Touche := LitClavier;
+ DesinstalleClignotement;
+ SpeedInitialiseEcran;
+End;

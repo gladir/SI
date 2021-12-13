@@ -1,0 +1,52 @@
+(*********************************************************************)
+(*  Proc‚dure   : Timer1C                                            *)
+(*  Description : Fait clignot‚ les boutons de la fenˆtre courant    *)
+(*********************************************************************)
+(*  Entr‚e      : Aucun                                              *)
+(*  Sortie      : Aucun                                              *)
+(*********************************************************************)
+
+Procedure Timer1C;
+Assembler;
+Label Comp,Fin;
+ASM    PUSH AX;
+       PUSH BX;
+       PUSH CX;
+       CMP Compteur1C,3;
+       JB  Comp; { If(Compteur1C < 3)Then Goto Comp; }
+       MOV Compteur1C,0;
+       MOV BH,Couleur1C;
+       MOV CL,3;
+       SHL BH,CL;
+       OR  BH,7;
+       MOV AX,$1000;
+       MOV BL,1;
+       INT $10;
+       INC Couleur1C;
+       AND Couleur1C,3;
+       JMP Fin;
+Comp : INC Compteur1C;
+Fin  : POP CX;
+       POP BX;
+       POP AX;
+       IRET;
+END;
+
+ { Procedure R‚el }
+
+{ Var Registre : Registers;
+  Begin
+   If(Compteur1C < 10)Then Inc(Compteur1C)
+    else
+   Begin
+    With Registre do
+    Begin
+     Compteur1C := 0;
+     AX := $1000;
+     BL := PoBut;
+     BH := Couleur1C * 4 + 1;
+     Intr($10,Registre);
+     Couleur1C := (Couleur1C+1) and 15;
+    End;
+   End;
+  End; }

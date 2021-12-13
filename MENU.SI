@@ -1,0 +1,447 @@
+(*****************************************************************)
+(*  Logiciel     : SystŠme Information (SYSINFO.PAS)             *)
+(*  Module       : Menu                                          *)
+(*  Description  : Ce module affiche les menus d‚roulants du     *)
+(*                 SystŠme Information.                          *)
+(*****************************************************************)
+(*  Groupe       : Les Chevaliers de Malte                       *)
+(*  Auteur       : Sylvain Maltais                               *)
+(*  Date cr‚‚    : 1991/12/31                                    *)
+(*  Date modifi‚ : 1992/02/21                                    *)
+(*****************************************************************)
+(*  RequŠre      : þ Turbo Pascal 6                              *)
+(*                 þ Logiciel SystŠme Information                *)
+(*****************************************************************)
+
+(****************************************************************)
+(*  Fonction    : Menu Processeur                               *)
+(*  Description : Cette fonction affiche un menu.               *)
+(****************************************************************)
+(*  Entr‚e      : Aucun                                         *)
+(*  Sortie      : MenuProcesseur                                *)
+(****************************************************************)
+
+Function MenuProcesseur:ShortInt;
+Label Exit;
+Const MaxPos     = 1;
+      X          = 8;
+      Y          = 1;
+      PosSelecte : Array[0..MaxPos] of Byte = (2,3);
+      Position   : Byte = 0;
+Var Compteur : Byte;
+    Tableau  : Array[0..63] of Byte;
+    Registre : Registers;
+    TSeg     : Word;
+    Lig      : Byte;
+Begin
+ ExclureEcranM := 0;
+ TSeg := Adresse;
+ Lig  := Ligne;
+ SelecteProcesseur;
+ ClaireLigne(Lig,32,MenuNormal);
+ CadrePlain(X,Y,X+16,Y+3,MenuNormal);
+ EcritSpecial(X+3,Y+1,#3+#252+'M'+#3+Chr(MenuNormal)+'odŠle'+#1+
+                      #3+#252+'P'+#18+'erformance');
+{ EcritChoix(X+3,Y+1,'ModŠle',$FC,MenuNormal);
+ EcritChoix(X+3,Y+2,'Performance',$FC,MenuNormal);}
+ Repeat
+  Selecte(48,Lig,66,$FF);
+  Case Position of
+   0 : Ecrit(10,Lig,'Indique le modŠle de processeur install‚ sur l''ordinateur',MenuNormal);
+   1 : Ecrit(10,Lig,'Indique les performances du processeur',MenuNormal);
+  End;
+  Move(Mem[TSeg:(X+2+(PosSelecte[Position])*Colonne)*2],Tableau,40);
+  Selecte(X+2,PosSelecte[Position],X+14,$B);
+  Touche := LitClavier;
+  Move(Tableau,Mem[TSeg:(X+2+(PosSelecte[Position])*Colonne)*2],40);
+  Case Hi(Touche) of
+   71 : Position := 0;
+   72 : If(Position > 0)Then Dec(Position)
+			Else Position := MaxPos;
+   75 : Begin
+	 MenuProcesseur := -2;
+         Goto Exit;
+	End;
+   77 : Begin
+	 MenuProcesseur := -1;
+         Goto Exit;
+	End;
+   79 : Position := MaxPos;
+   80 : If(Position < MaxPos)Then Inc(Position)
+			     Else Position := 0;
+  End;
+ Until (Lo(Touche) in [13,27]);
+ If(Lo(Touche) = 27)Then MenuProcesseur := -3
+		    Else MenuProcesseur := Position;
+Exit : CopiePage(3,0);
+       ExclureEcranM := 1;
+       AfficheCadreMemoire;
+End;
+
+(****************************************************************)
+(*  Fonction    : Menu Vid‚o                                    *)
+(*  Description : Cette fonction affiche un menu.               *)
+(****************************************************************)
+(*  Entr‚e      : Aucun                                         *)
+(*  Sortie      : MenuVid‚o                                     *)
+(****************************************************************)
+
+Function MenuVideo : ShortInt;
+Label Exit;
+Const MaxPos     = 5;
+      X          = 1;
+      Y          = 1;
+      PosSelecte : Array[0..MaxPos] of Byte = (2,3,5,7,9,10);
+      Position   : Byte = 0;
+Var Compteur : Byte;
+    Tableau  : Array[0..63] of Byte;
+    Registre : Registers;
+    TSeg     : Word;
+    Lig      : Byte;
+Begin
+ ExclureEcranM := 0;
+ TSeg := Adresse;
+ Lig  := Ligne;
+ SelecteVideo;
+ ClaireLigne(Lig,32,MenuNormal);
+ CadrePlain(X,Y,X+20,Y+10,MenuNormal);
+ EcritUnCaractere(X,Y+3,195,MenuNormal);
+ EcritUnCaractere(X,Y+5,195,MenuNormal);
+ EcritUnCaractere(X,Y+7,195,MenuNormal);
+ BarTexteHori(X+1,Y+3,X+19,196,MenuNormal);
+ BarTexteHori(X+1,Y+5,X+19,196,MenuNormal);
+ BarTexteHori(X+1,Y+7,X+19,196,MenuNormal);
+ EcritUnCaractere(X+20,Y+3,180,MenuNormal);
+ EcritUnCaractere(X+20,Y+5,180,MenuNormal);
+ EcritUnCaractere(X+20,Y+7,180,MenuNormal);
+ EcritChoix(X+3,Y+1,'SystŠme',$FC,MenuNormal);
+ EcritChoix(X+3,Y+2,'BIOS',$FC,MenuNormal);
+ With Registre do
+ Begin
+  AH := $1B;
+  BX := $00;
+  ES := Seg(Tableau);
+  DI := Ofs(Tableau);
+  Intr($10,Registre);
+  If(AL = $1B)Then EcritChoix(X+3,Y+4,'Info VGA/PS2',$FC,MenuNormal)
+	      Else Ecrit(X+3,Y+4,'Info VGA/PS2',$F7);
+ End;
+ EcritChoix(X+3,Y+6,'Performance',$FC,MenuNormal);
+ EcritChoix(X+3,Y+8,'Table paramŠtre',$FC,MenuNormal);
+ EcritChoix(X+3,Y+9,'Mode vid‚o',$FC,MenuNormal);
+ Repeat
+  Selecte(50,Lig,73,$FF);
+  Case Position of
+   0 : Ecrit(10,Lig,'Indique les informations du systŠme vid‚o.',MenuNormal);
+   1 : Ecrit(10,Lig,'Indique les informations du BIOS en RAM.',MenuNormal);
+   2 : Ecrit(10,Lig,'Indique les informations additionnel sur les cartes VGA ou PS/2.',MenuNormal);
+   3 : Ecrit(10,Lig,'Indique les performances du systŠme vid‚o.',MenuNormal);
+   4 : Ecrit(10,Lig,'Indique la table des paramŠtres de la carte MDA et CGA.',MenuNormal);
+   5 : Ecrit(10,Lig,'D‚monstration des modes vid‚o disponibles.',MenuNormal);
+  End;
+  Move(Mem[TSeg:((PosSelecte[Position])*Colonne)*2],Tableau,40);
+  Selecte(X+2,PosSelecte[Position],X+18,$B);
+  Touche := LitClavier;
+  Move(Tableau,Mem[TSeg:((PosSelecte[Position])*Colonne)*2],40);
+  Case Hi(Touche) of
+   71 : Position := 0;
+   72 : If(Position > 0)Then Dec(Position)
+			Else Position := MaxPos;
+   75 : Begin
+	 MenuVideo := -2;
+         Goto Exit;
+	End;
+   77 : Begin
+	 MenuVideo := -1;
+         Goto Exit;
+	End;
+   79 : Position := MaxPos;
+   80 : If(Position < MaxPos)Then Inc(Position)
+			     Else Position := 0;
+  End;
+ Until (Lo(Touche) in [13,27]);
+ If(Lo(Touche) = 27)Then MenuVideo := -3
+		    Else MenuVideo := Position;
+Exit : CopiePage(3,0);
+       ExclureEcranM := 1;
+       AfficheCadreMemoire;
+End;
+
+(****************************************************************)
+(*  Fonction    : Menu M‚moire                                  *)
+(*  Description : Cette fonction affiche un menu.               *)
+(****************************************************************)
+(*  Entr‚e      : Aucun                                         *)
+(*  Sortie      : MenuMemoire                                   *)
+(****************************************************************)
+
+Function MenuMemoire:ShortInt;
+Label Exit;
+Const MaxPos     = 7;
+      X          = 20;
+      Y          = 1;
+      PosSelecte : Array[0..MaxPos] of Byte = (2,3,4,6,7,8,10,12);
+      Position   : Byte = 0;
+Var Compteur : Byte;
+    Tableau  : Array[0..126] of Byte;
+    TSeg     : Word;
+    Lig      : Byte;
+Begin
+ ExclureEcranM := 0;
+ TSeg := Adresse;
+ Lig  := Ligne;
+ SelecteMemoire;
+ ClaireLigne(Lig,32,MenuNormal);
+ CadrePlain(X,Y,X+32,Y+12,MenuNormal);
+ EcritUnCaractere(X,Y+4,195,MenuNormal);
+ EcritUnCaractere(X,Y+8,195,MenuNormal);
+ EcritUnCaractere(X,Y+10,195,MenuNormal);
+ BarTexteHori(X+1,Y+4,X+31,196,MenuNormal);
+ BarTexteHori(X+1,Y+8,X+31,196,MenuNormal);
+ BarTexteHori(X+1,Y+10,X+31,196,MenuNormal);
+ EcritUnCaractere(X+32,Y+4,180,MenuNormal);
+ EcritUnCaractere(X+32,Y+8,180,MenuNormal);
+ EcritUnCaractere(X+32,Y+10,180,MenuNormal);
+ EcritChoix(X+3,Y+1,'Usage m‚moire conventionnel',$FC,MenuNormal);
+ EcritChoix(X+3,Y+2,'M‚moire expanded (EMS)',$FC,MenuNormal);
+ Ecrit(X+3,Y+3,'m‚moire eXtended (XMS)',MenuNormal);
+ EcritUnAttribut(X+12,Y+3,$FC);
+ EcritChoix(X+3,Y+5,'Liste des blocs m‚moires',$FC,MenuNormal);
+ Ecrit(X+3,Y+6,'programme TSR',MenuNormal);
+ EcritUnAttribut(X+13,Y+6,$FC);
+ EcritChoix(X+3,Y+7,'Device driver',$FC,MenuNormal);
+ EcritChoix(X+3,Y+9,'Carte BIOS',$FC,MenuNormal);
+ EcritChoix(X+3,Y+11,'Performance',$FC,MenuNormal);
+ Repeat
+  Selecte(44,Lig,68,$FF);
+  Case Position of
+   0 : Ecrit(10,Lig,'Indique l''usage de la m‚moire conventionnel.',MenuNormal);
+   1 : Ecrit(10,Lig,'Indique des informations sur l''EMS.',MenuNormal);
+   2 : Ecrit(10,Lig,'Indique les informations sur l''XMS.',MenuNormal);
+   3 : Ecrit(10,Lig,'Indique une liste des blocs de m‚moires.',MenuNormal);
+   4 : Ecrit(10,Lig,'Indique une liste des programmes r‚sident.',MenuNormal);
+   5 : Ecrit(10,Lig,'Indique les informations de la device du driver.',MenuNormal);
+   6 : Ecrit(10,Lig,'Indique les informations sur la RAM du BIOS.',MenuNormal);
+   7 : Ecrit(10,Lig,'Indique les performances de l''accŠs … la m‚moire.',MenuNormal);
+  End;
+  Move(Mem[TSeg:(X+1+(PosSelecte[Position])*Colonne)*2],Tableau,100);
+  Selecte(X+2,PosSelecte[Position],X+30,$B);
+  Touche := LitClavier;
+  Move(Tableau,Mem[TSeg:(X+1+(PosSelecte[Position])*Colonne)*2],100);
+  Case Hi(Touche) of
+   71 : Position := 0;
+   72 : If(Position > 0)Then Dec(Position)
+			Else Position := MaxPos;
+   75 : Begin
+	 MenuMemoire := -2;
+         Goto Exit;
+	End;
+   77 : Begin
+	 MenuMemoire := -1;
+         Goto Exit;
+	End;
+   79 : Position := MaxPos;
+   80 : If(Position < MaxPos)Then Inc(Position)
+			     Else Position := 0;
+  End;
+ Until (Lo(Touche) in [13,27]);
+ If(Lo(Touche) = 27)Then MenuMemoire := -3
+		    Else MenuMemoire := Position;
+ Exit : CopiePage(3,0);
+        ExclureEcranM := 1;
+        AfficheCadreMemoire;
+End;
+
+(****************************************************************)
+(*  Fonction    : Menu Disque                                   *)
+(*  Description : Cette fonction affiche un menu.               *)
+(****************************************************************)
+(*  Entr‚e      : Aucun                                         *)
+(*  Sortie      : MenuDisque                                    *)
+(****************************************************************)
+
+Function MenuDisque:ShortInt;
+Label Exit;
+Const MaxPos     = 5;
+      X          = 29;
+      Y          = 1;
+      PosSelecte : Array[0..MaxPos] of Byte = (2,3,5,6,8,10);
+      Position   : Byte = 0;
+Var Compteur : Byte;
+    Tableau  : Array[0..126] of Byte;
+    TSeg     : Word;
+    Lig      : Byte;
+Begin
+ ExclureEcranM := 0;
+ TSeg := Adresse;
+ Lig  := Ligne;
+ SelecteDisque;
+ ClaireLigne(Lig,32,MenuNormal);
+ CadrePlain(X,Y,X+20,Y+10,MenuNormal);
+ EcritUnCaractere(X,Y+3,195,MenuNormal);
+ EcritUnCaractere(X,Y+6,195,MenuNormal);
+ EcritUnCaractere(X,Y+8,195,MenuNormal);
+ BarTexteHori(X+1,Y+3,X+19,196,MenuNormal);
+ BarTexteHori(X+1,Y+6,X+19,196,MenuNormal);
+ BarTexteHori(X+1,Y+8,X+19,196,MenuNormal);
+ EcritUnCaractere(X+20,Y+3,180,MenuNormal);
+ EcritUnCaractere(X+20,Y+6,180,MenuNormal);
+ EcritUnCaractere(X+20,Y+8,180,MenuNormal);
+ Ecrit(X+3,Y+1,'pHysique',MenuNormal);
+ EcritUnAttribut(X+4,Y+1,$FC);
+ EcritChoix(X+3,Y+2,'Logique',$FC,MenuNormal);
+ If(TesteCDROM = 0)Then Ecrit(X+3,Y+4,'CD-ROM',$F7)
+                   Else EcritChoix(X+3,Y+4,'CD-ROM',$FC,MenuNormal);
+ If(Mem[$FFFF:$E] = 255)Then EcritChoix(X+3,Y+5,'Machine casette',$FC,MenuNormal)
+                        Else Ecrit(X+3,Y+5,'Machine casette',$F7);
+ If(TesteSB2F=1)Then EcritChoix(X+3,Y+7,'Extension ROM',$FC,MenuNormal)
+                Else Ecrit(X+3,Y+7,'Extension ROM',$F7);
+ EcritChoix(X+3,Y+9,'Performance',$FC,MenuNormal);
+ Repeat
+  Selecte(56,Lig,68,$FF);
+  Case Position of
+   0 : Ecrit(10,Lig,'Indique les informations physique sur les unit‚s de disque.',MenuNormal);
+   1 : Ecrit(10,Lig,'Indique des informations logique sur les unit‚s de disque.',MenuNormal);
+   2 : Ecrit(10,Lig,'Indique les informations sur le Compacte Disque.',MenuNormal);
+   3 : Ecrit(10,Lig,'Indique les informations sur la machine … casette.',MenuNormal);
+   4 : Ecrit(10,Lig,'Indique les informations sur les extensions en ROM.',MenuNormal);
+   5 : Ecrit(10,Lig,'Indique les performances des unit‚s de disque.',MenuNormal);
+  End;
+  Move(Mem[TSeg:(X+1+(PosSelecte[Position])*Colonne)*2],Tableau,100);
+  Selecte(X+2,PosSelecte[Position],X+18,$B);
+  Touche := LitClavier;
+  Move(Tableau,Mem[TSeg:(X+1+(PosSelecte[Position])*Colonne)*2],100);
+  Case Hi(Touche) of
+   71 : Position := 0;
+   72 : If(Position > 0)Then Dec(Position)
+			Else Position := MaxPos;
+   75 : Begin
+	 MenuDisque := -2;
+         Goto Exit;
+	End;
+   77 : Begin
+	 MenuDisque := -1;
+         Goto Exit;
+	End;
+   79 : Position := MaxPos;
+   80 : If(Position < MaxPos)Then Inc(Position)
+			     Else Position := 0;
+  End;
+ Until (Lo(Touche) in [13,27]);
+ If(Lo(Touche) = 27)Then MenuDisque := -3
+		    Else MenuDisque := Position;
+Exit : CopiePage(3,0);
+       ExclureEcranM := 1;
+       AfficheCadreMemoire;
+End;
+
+Function MenuCommunication:ShortInt;
+Label Exit;
+Const MaxPos = 2;
+      X      = 37;
+      Y      = 1;
+      PosSelecte : Array[0..MaxPos] of Byte = (2,3,4);
+      Position   : Byte = 0;
+Var Compteur : Byte;
+    Tableau  : Array[0..126] of Byte;
+    TSeg     : Word;
+    Lig      : Byte;
+Begin
+ ExclureEcranM := 0;
+ Tseg := Adresse;
+ Lig  := Ligne;
+ SelecteCommunication;
+ CadrePlain(X,Y,X+28,Y+4,MenuNormal);
+ EcritSpecial(X+3,Y+1,#3+#252+'I'+#3+Chr(MenuNormal)+'nitialiser port s‚rie'+
+                      #1+#18+'R'+#18+'egistre'+#1+
+                      'Information '+#18+'A'+#18+'dditionnel'+#1);
+ ClaireLigne(Lig,32,MenuNormal);
+ Repeat
+  Selecte(43,Lig,73,$FF);
+  Case Position of
+   0 : Ecrit(10,Lig,'Initialise le port s‚rie sp‚cifi‚',MenuNormal);
+   1 : Ecrit(10,Lig,'Indique des informations sur les registre "S" du microprocesseur',MenuNormal);
+   2 : Ecrit(10,Lig,'Indique les informations Additionnel',MenuNormal);
+  End;
+  Move(Mem[TSeg:(X+1+(PosSelecte[Position])*Colonne)*2],Tableau,100);
+  Selecte(X+2,PosSelecte[Position],X+26,$B);
+  Touche := LitClavier;
+  Move(Tableau,Mem[TSeg:(X+1+(PosSelecte[Position])*Colonne)*2],100);
+  Case Hi(Touche) of
+   71 : Position := 0;
+   72 : If(Position > 0)Then Dec(Position)
+			Else Position := MaxPos;
+   75 : Begin
+	 MenuCommunication := -2;
+         Goto Exit;
+	End;
+   77 : Begin
+	 MenuCommunication := -1;
+         Goto Exit;
+	End;
+   79 : Position := MaxPos;
+   80 : If(Position < MaxPos)Then Inc(Position)
+			     Else Position := 0;
+  End;
+ Until (Lo(Touche) in [13,27]);
+ If(Lo(Touche) = 27)Then MenuCommunication := -3
+		    Else MenuCommunication := Position;
+Exit : CopiePage(3,0);
+       ExclureEcranM := 1;
+       AfficheCadreMemoire;
+End;
+
+Function MenuQuitte:ShortInt;
+Label Exit;
+Const MaxPos     = 1;
+      X          : Byte = 63;
+      Y          = 1;
+      PosSelecte : Array[0..MaxPos] of Byte = (2,3);
+      Position   : Byte = 0;
+Var Compteur : Byte;
+    Tableau  : Array[0..126] of Byte;
+    TSeg     : Word;
+    Lig      : Byte;
+Begin
+ ExclureEcranM := 0;
+ Lig := Ligne;
+ TSeg := Adresse;
+ If(Colonne > 99)Then X := 69
+                 Else X := 63;
+ SelecteQuitte;
+ ClaireLigne(Lig,32,MenuNormal);
+ CadrePlain(X,Y,X+14,Y+3,MenuNormal);
+ EcritChoix(X+3,Y+1,'DOS Shell',$FC,MenuNormal);
+ EcritChoix(X+3,Y+2,'Quitter',$FC,MenuNormal);
+ Repeat
+  Case Position of
+   0 : Ecrit(10,Lig,'Retourne au DOS temporairement',MenuNormal);
+   1 : Ecrit(10,Lig,'Quitter le SystŠme Information',MenuNormal);
+  End;
+  Move(Mem[TSeg:(X+1+(PosSelecte[Position])*Colonne)*2],Tableau,100);
+  Selecte(X+2,PosSelecte[Position],X+12,$B);
+  Touche := LitClavier;
+  Move(Tableau,Mem[TSeg:(X+1+(PosSelecte[Position])*Colonne)*2],100);
+  Case Hi(Touche) of
+   71 : Position := 0;
+   72 : If(Position > 0)Then Dec(Position)
+			Else Position := MaxPos;
+   75 : Begin
+	 MenuQuitte := -2;
+         Goto Exit;
+	End;
+   77 : Begin
+	 MenuQuitte := -1;
+         Goto Exit;
+	End;
+   79 : Position := MaxPos;
+   80 : If(Position < MaxPos)Then Inc(Position)
+			     Else Position := 0;
+  End;
+ Until (Lo(Touche) in [13,27]);
+ If(Lo(Touche) = 27)Then MenuQuitte := -3
+		    Else MenuQuitte := Position;
+Exit : CopiePage(3,0);
+       ExclureEcranM := 1;
+       AfficheCadreMemoire;
+End;

@@ -1,0 +1,265 @@
+(********************************************************************)
+(*  Logiciel     : Systäme Information (SYSINFO.PAS)                *)
+(*  ProcÇdure    : Teste Mode VidÇo                                 *)
+(*  Description  : Teste les modes vidÇo du BIOS.                   *)
+(********************************************************************)
+(*  Groupe       : Les Chevaliers de Malte                          *)
+(*  Auteur       : Sylvain Maltais                                  *)
+(*  Date crÇÇ    : 1991/12/31                                       *)
+(*  Date modifiÇ : 1992/02/21                                       *)
+(********************************************************************)
+(*  EntrÇe       : Aucun                                            *)
+(*  Sortie       : Aucun                                            *)
+(********************************************************************)
+
+Procedure TesteModeVideo;
+Label Exit,Quit;
+Var Compteur : Byte;
+    Boucle   : Byte;
+    Mode     : Byte;
+    Chaine   : String;
+    Video    : VideoData;
+    VGA      : Byte;
+
+ Procedure Palette(NumeroPalette,NumeroCouleur:Byte);
+ Var Registre : Registers;
+ Begin
+  With Registre do
+  Begin
+   AX := $1000;
+   BH := (NumeroCouleur and 3);
+   BL := NumeroPalette;
+   Intr($10,Registre);
+  End;
+ End;
+
+ Function CouleurBleu(Nombre:Byte):Byte;
+  (* Nombre Ó { 0,1,2 ou 3 } *)
+ Begin
+  CouleurBleu := ((Nombre and 2) shl 2) + (Nombre and 1);
+ End;
+
+ Function CouleurVert(Nombre:Byte):Byte;
+  (* Nombre Ó { 0,1,2 ou 3 } *)
+ Begin
+  CouleurVert := ((Nombre and 2) shl 3) + ((Nombre and 1) shl 1);
+ End;
+
+ Function CouleurRouge(Nombre:Byte):Byte;
+  (* Nombre Ó { 0,1,2 ou 3 } *)
+ Begin
+  CouleurRouge := ((Nombre and 2) shl 4) + ((Nombre and 1) shl 2);
+ End;
+
+ Function NomModeVideo:String;
+ Var Temp   : String;
+     Chaine : String;
+ Begin
+  If(ModeGraphique)Then
+  Begin
+   Str(ColonnePixel,Chaine);
+   Temp := 'Graphique ' + Chaine + 'x';
+   Str(LignePixel,Chaine);
+   IncStr(Temp,Chaine + ', ');
+   Str(NombreCouleur,Chaine);
+   IncStr(Temp,Chaine + ' couleurs');
+  End
+   else
+  Begin
+   Str(Colonne,Chaine);
+   Temp := 'Texte '+ Chaine + 'x';
+   Str(Ligne+1,Chaine);
+   IncStr(Temp,Chaine + ', ');
+   Str(NombreCouleur,Chaine);
+   IncStr(Temp,Chaine + ' couleurs');
+  End;
+  NomModeVideo := Temp;
+ End;
+
+Begin
+ ConfigurationVideo(Video);
+ VGA := 0;
+ If(Video.Carte[0] > MCGA)Then
+ Begin
+  DensiteLigne(2);
+  VGA := 1;
+ End;
+ For Compteur := 0 to 127 do
+ Begin
+  ModeVideo(Compteur,1);
+  If(Mem[$0040:$49] = Compteur)Then
+  Begin
+   FillChar(Mem[Adresse:0],MemW[$0040:$4C],1);
+   Localise(0,0);
+   EcritBIOS(NomModeVideo);
+   Str(Mem[$0040:$49],Chaine);
+   Localise(0,1);
+   EcritBIOS('Mode   : '+Chaine+' ('+Hex2(Mem[$0040:$49])+'h)');
+   Str(MemW[$0040:$4C],Chaine);
+   Localise(0,2);
+   EcritBIOS('Taille : '+Chaine+' octets');
+
+    { Affiche la taille de la police }
+
+   Localise(0,3);
+   Case Compteur of
+    0..3 : If(VGA = 1)Then Chaine := '9x16'
+                      Else Chaine := '8x14';
+    4..6,13,14,19,23,24,34,37,38 : Chaine := '8x8';
+    7 : If(VGA = 1)Then Chaine := '9x16'
+                   Else Chaine := '9x14';
+    15,16,35,45 : Chaine := '8x14';
+    17,18,41,46..48,55,56,106 : Chaine := '8x16';
+    25 : Chaine := '9x14';
+    26 : Chaine := '9x13';
+    36 : Chaine := '8x13';
+    42 : Chaine := '8x15';
+     else
+    Begin
+     Str(Mem[$0040:$85],Chaine);
+     If(ModeGraphique)Then Chaine := '8x'+Chaine
+                      Else Chaine := '9x'+Chaine;
+    End;
+   End;
+   EcritBIOS('Taille police : '+Chaine+' pixels');
+
+    { Affiche la palette de caractere }
+
+   Localise(3,5);
+   EcritBIOS('Caractäre');
+   For Boucle := 0 to 15 do For Mode := 0 to 15 do
+   Begin
+    Localise(Mode+3,Boucle+7);
+    EcritBIOS(Chr(Boucle * 16 + Mode));
+   End;
+
+    { Affiche la palette de couleur }
+
+   If(NombreCouleur <= 16)Then
+   Begin
+    Chaine := '';
+    Localise(24,5);
+    EcritBIOS('Couleur');
+    For Boucle := 0 to 10 do IncStr(Chaine,#219);
+    For Boucle := 0 to NombreCouleur-1 do
+    Begin
+     Localise(24,Boucle+7);
+     EcritBIOSCouleur(Chaine,Boucle);
+    End;
+   End
+    else
+   If(NombreCouleur=256)Then
+   Begin
+    Chaine := '';
+    Localise(24,5);
+    EcritBIOS('Couleur');
+    For Boucle := 0 to 15 do For Mode := 0 to 15 do
+    Begin
+     Localise(24+Mode,Boucle+7);
+     EcritBIOSCouleur(#219,Boucle*16+Mode);
+    End;
+   End;
+   If(Colonne <= 40)Then Localise(0,Ligne-1)
+                    Else Localise(0,Ligne);
+   EcritBIOS('Presse une touche pour le mode vidÇo suivant ou <ESC> pour quitter.');
+   Touche := LitClavier;
+   If(Lo(Touche) = 27)Then Goto Exit;
+  End;
+ End;
+ Exit : For Mode := 0 to 127 do
+        Begin
+         ModeVideo(Mode,1);
+         If(Mem[$0040:$49] = Mode)Then
+         Begin
+          If(ModeGraphique)Then
+          Begin
+           CouleurCourant := 15;
+           CercleVide(Colonne * 4,LignePixel div 2,Colonne);
+          End;
+          Localise(0,0);
+          EcritBIOS(NomModeVideo);
+          Str(Mem[$0040:$49],Chaine);
+          Localise(0,1);
+          EcritBIOS('Mode   : '+Chaine+' ('+Hex2(Mem[$0040:$49])+'h)');
+          Str(MemW[$0040:$4C],Chaine);
+          Localise(0,2);
+          EcritBIOS('Taille : '+Chaine+' octets');
+          If(Colonne <= 40)Then Localise(0,Ligne-2)
+                           Else Localise(0,Ligne-1);
+          EcritBIOS('Presse <M> pour le mode suivant,');
+          If(Colonne <= 40)Then Localise(0,Ligne-1)
+                           Else Localise(0,Ligne);
+          EcritBIOS('presse une touche pour la couleur suivant ou <ESC> pour quitter.');
+          {FermeCurseur;}
+          Compteur := 0;
+          Localise((Colonne-4) div 2,Ligne div 2);
+          EcritBIOS('Bleu');
+          Repeat
+           Compteur := (Compteur + 1) and 255;
+           If(VGA <> 1)Then
+           Begin
+            Palette(0,CouleurBleu(Compteur));
+            Delay(200);
+           End
+             else
+           Begin
+            FixePaletteRGB(0,Compteur,0,0);
+            Delay(50);
+           End;
+          Until (ClavierPrete = 1);
+          Compteur := 0;
+          Localise((Colonne-4) div 2,Ligne div 2);
+          EcritBIOS('Vert');
+          Touche := LitClavier;
+          If(Lo(Touche) = 27)Then Goto Quit;
+          If Not(Lo(Touche) in [77,109])Then
+          Begin
+           Repeat
+            Compteur := (Compteur + 1) and 255;
+            If(VGA <> 1)Then
+            Begin
+             Palette(0,CouleurVert(Compteur));
+             Delay(200);
+            End
+              else
+            Begin
+             FixePaletteRGB(0,0,Compteur,0);
+             Delay(50);
+            End;
+           Until (ClavierPrete = 1);
+           Touche := LitClavier;
+           If(Lo(Touche) = 27)Then Goto Quit;
+           If Not(Lo(Touche) in [77,109])Then
+           Begin
+            Compteur := 0;
+            Localise((Colonne-5) div 2,Ligne div 2);
+            EcritBIOS('Rouge');
+            Repeat
+             Compteur := (Compteur + 1) and 255;
+             If(VGA <> 1)Then
+             Begin
+              Palette(0,CouleurRouge(Compteur));
+              Delay(200);
+             End
+              else
+             Begin
+              FixePaletteRGB(0,0,0,Compteur);
+              Delay(50);
+             End;
+            Until (ClavierPrete = 1);
+            Touche := LitClavier;
+            If(Lo(Touche) = 27)Then Goto Quit;
+           End;
+          End;
+         End;
+        End;
+ Quit :
+ ExclureEcranM := 0;
+ InitialiseEcran;
+ SegExcEcranM := Adresse;
+ OfsExcEcranM := MemW[$0040:$4C];
+ ClaireMemoire(0);
+ AfficheCadreMemoire;
+ ExclureEcranM := 1;
+ CopiePage(0,3);
+End;

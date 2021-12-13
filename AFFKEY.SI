@@ -1,0 +1,86 @@
+(********************************************************************)
+(*  Proc‚dure   : Ajuste Palette Touche                             *)
+(*  Description : Ajuste la palette des touches affich‚.            *)
+(********************************************************************)
+(*  Entr‚e      : Aucun                                             *)
+(*  Sortie      : Aucun                                             *)
+(********************************************************************)
+
+Procedure AjustePaletteTouche;
+Begin
+ InLine($50/         {        Push AX      }
+        $53/         {        Push BX      }
+        $51/         {        Push CX      }
+        $B9/$03/$00/ {        Mov CX,0003h }
+        $B8/$00/$10/ { Wait : Mov AX,1000h }
+        $89/$CB/     {        Mov BX,CX    }
+        $FE/$C3/     {        Inc BL       }
+        $CD/$10/     {        Int 10h      }
+        $E2/$F5/     {        Loop Wait    }
+        $B8/$00/$10/ {        Mov AX,1000h }
+        $BB/$0C/$24/ {        Mov BX,240Ch }
+        $CD/$10/     {        Int 10h      }
+        $59/         {        Pop CX       }
+        $5B/         {        Pop BX       }
+        $58);        {        Pop AX       }
+End;
+
+(********************************************************************)
+(*  Proc‚dure   : Affiche Touche                                    *)
+(*  Description : Affiche les touches : Suivant, Avant, Imprime et  *)
+(*                aNnule et rŠgle les palettes.                     *)
+(********************************************************************)
+(*  Entr‚e      : X1,Y1,X2,Y2,X3,Y3,X4 et Y4                        *)
+(*  Sortie      : Aucun                                             *)
+(********************************************************************)
+
+Procedure AfficheTouche(X1,Y1,X2,Y2,X3,Y3,X4,Y4:Byte);
+Begin
+ AjustePaletteTouche;
+ Ecrit(X1,Y1,#168+' Suivant '+#169,$F1);
+ EcritUnAttribut(X1,Y1,$9F);
+ EcritUnAttribut(X1+2,Y1,$FC);
+ EcritUnAttribut(X1+10,Y1,$9F);
+ Ecrit(X2,Y2,#168+' Avant '+#169,$F2);
+ EcritUnAttribut(X2,Y2,$9F);
+ EcritUnAttribut(X2+2,Y2,$FC);
+ EcritUnAttribut(X2+8,Y2,$9F);
+ Ecrit(X3,Y3,#168+' Imprime '+#169,$F3);
+ EcritUnAttribut(X3,Y3,$9F);
+ EcritUnAttribut(X3+2,Y3,$FC);
+ EcritUnAttribut(X3+10,Y3,$9F);
+ Ecrit(X4,Y4,#168+' aNnule '+#169,$F4);
+ EcritUnAttribut(X4,Y4,$9F);
+ EcritUnAttribut(X4+3,Y4,$FC);
+ EcritUnAttribut(X4+9,Y4,$9F);
+End;
+
+(********************************************************************)
+(*  Proc‚dure   : Affiche Touche Egale                              *)
+(*  Description : Affiche les touches : Suivant, Avant, Imprime et  *)
+(*                aNnule et rŠgle les palettes de longeur ‚gale.    *)
+(********************************************************************)
+(*  Entr‚e      : X1,Y1,X2,Y2,X3,Y3,X4 et Y4                        *)
+(*  Sortie      : Aucun                                             *)
+(********************************************************************)
+
+Procedure AfficheToucheEgale(X1,Y1,X2,Y2,X3,Y3,X4,Y4:Byte);
+Begin
+ AjustePaletteTouche;
+ Ecrit(X1,Y1,#168+' Suivant '+#169,$F1);
+ EcritUnAttribut(X1,Y1,$9F);
+ EcritUnAttribut(X1+2,Y1,$FC);
+ EcritUnAttribut(X1+10,Y1,$9F);
+ Ecrit(X2,Y2,#168+' Avant   '+#169,$F2);
+ EcritUnAttribut(X2,Y2,$9F);
+ EcritUnAttribut(X2+2,Y2,$FC);
+ EcritUnAttribut(X2+10,Y2,$9F);
+ Ecrit(X3,Y3,#168+' Imprime '+#169,$F3);
+ EcritUnAttribut(X3,Y3,$9F);
+ EcritUnAttribut(X3+2,Y3,$FC);
+ EcritUnAttribut(X3+10,Y3,$9F);
+ Ecrit(X4,Y4,#168+' aNnule  '+#169,$F4);
+ EcritUnAttribut(X4,Y4,$9F);
+ EcritUnAttribut(X4+3,Y4,$FC);
+ EcritUnAttribut(X4+10,Y4,$9F);
+End;

@@ -1,0 +1,33 @@
+Procedure DOSShell;
+Var Repert : String;
+
+ Procedure Shell;
+ {$M 16384,0,0 }
+ Begin
+  ModeVideo(ModeInitiale,1);
+  WriteLn('Taper ''EXIT'' pour retouner au Systäme Info...');
+  Exec(GETENV('COMSPEC'),'');
+ End;
+
+Begin
+ GetDir(0,Repert);
+ Shell;
+ If(DOSERROR<>0)Then
+ Begin
+  WriteLn('Impossible de charger le COMMAND!');
+  WriteLn('Presse une touche pour retourner au Systäme Information...');
+  Touche := LitClavier;
+ End;
+ ChDir(Repert);
+ ExclureEcranM := 0;
+ InitialiseEcran;
+ SegExcEcranM := Adresse;
+ OfsExcEcranM := MemW[$0040:$4C];
+ ClaireMemoire(0);
+ AfficheCadreMemoire;
+ AfficheBar;
+ Tapiserie(1,Ligne-1,173,174,$78,$87);
+ DerniereLigne;
+ CopiePage(0,3);
+ ExclureEcranM := 1;
+End;

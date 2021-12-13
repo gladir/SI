@@ -1,0 +1,127 @@
+(*********************************************************************)
+(*  Proc‚dure   : BIOSInfo                                           *)
+(*  Description : Affiche une fenˆtre des informations BIOS.         *)
+(*********************************************************************)
+(*  Entr‚e      : X et Y                                             *)
+(*  Sortie      : Aucun                                              *)
+(*********************************************************************)
+
+Procedure BIOSVideo(X,Y:Byte);
+Var Chaine   : String[31];
+    Temp     : String;
+    Compteur : Byte;
+Begin
+ FermeCurseur;
+ SelecteVideo;
+ FixeCadre(PaletteCadre_E1);
+ CadrePlain(X,Y,X+63,Y+18,$9F);
+ EcritUnAttribut(X,Y,15);
+ EcritUnAttribut(X+1,Y,15);
+ Ecrit(X+27,Y,'Info BIOS',$FC);
+ FixeCadre(PaletteCadre_E2);
+ CadreVide(X+2,Y+2,X+37,Y+8,$9F);
+ Ecrit(X+4,Y+2,' Ecran ',$9E);
+ Ecrit(X+15,Y+3,'Mode :',$9F);
+ Str(Mem[$0040:$49],Chaine);
+ Ecrit(X+22,Y+3,Chaine,$9B);
+ Ecrit(X+13,Y+4,'Format :',$9F);
+ Str(Colonne,Chaine);
+ Temp := Chaine + 'x';
+ Str(Ligne+1,Chaine);
+ Temp := Temp + Chaine;
+ Ecrit(X+22,Y+4,Temp,$9B);
+ Ecrit(X+13,Y+5,'Taille :',$9F);
+ Str(MemW[$0040:$4C],Chaine);
+ Ecrit(X+22,Y+5,Chaine,$9B);
+ Ecrit(X+15,Y+6,'Page :',$9F);
+ Str(Mem[$0040:$62],Chaine);
+ Ecrit(X+22,Y+6,Chaine,$9B);
+ Ecrit(X+12,Y+7,'Adresse :',$9F);
+ Ecrit(X+22,Y+7,Hex4(Adresse)+'h:'+Hex4(MemW[$0040:$4E])+'h',$9B);
+ CadreVide(X+2,Y+9,X+61,Y+12,$9F);
+ CadreVide(X+38,Y+12,X+61,Y+17,$9F);
+ EcritUnCaractere(X+38,Y+8,218,$9F);
+ EcritUnCaractere(X+61,Y+8,191,$9F);
+ EcritUnCaractere(X+38,Y+9,217,$9F);
+ EcritUnCaractere(X+61,Y+9,179,$9F);
+ EcritUnCaractere(X+38,Y+12,191,$9F);
+ For Compteur := 39 to 60 do
+ Begin
+  EcritUnCaractere(X+Compteur,Y+8,196,$9F);
+  EcritUnCaractere(X+Compteur,Y+9,32,$9F);
+  EcritUnCaractere(X+Compteur,Y+12,32,$9F);
+ End;
+ EcritUnCaractere(X+61,Y+12,179,$9F);
+ Ecrit(X+4,Y+9,' Curseur ',$9E);
+ Ecrit(X+44,Y+9,'X1=',$9F);
+ Str(Mem[$0040:$50],Chaine);
+ Ecrit(X+47,Y+9,Chaine,$9B);
+ Ecrit(X+51,Y+9,'Y1=',$9F);
+ Str(Mem[$0040:$51],Chaine);
+ Ecrit(X+54,Y+9,Chaine,$9B);
+ Ecrit(X+44,Y+10,'X2=',$9F);
+ Str(Mem[$0040:$52],Chaine);
+ Ecrit(X+47,Y+10,Chaine,$9B);
+ Ecrit(X+51,Y+10,'Y2=',$9F);
+ Str(Mem[$0040:$53],Chaine);
+ Ecrit(X+54,Y+10,Chaine,$9B);
+ Ecrit(X+44,Y+11,'X3=',$9F);
+ Str(Mem[$0040:$54],Chaine);
+ Ecrit(X+47,Y+11,Chaine,$9B);
+ Ecrit(X+51,Y+11,'Y3=',$9F);
+ Str(Mem[$0040:$55],Chaine);
+ Ecrit(X+54,Y+11,Chaine,$9B);
+ Ecrit(X+44,Y+12,'X4=',$9F);
+ Str(Mem[$0040:$56],Chaine);
+ Ecrit(X+47,Y+12,Chaine,$9B);
+ Ecrit(X+51,Y+12,'Y4=',$9F);
+ Str(Mem[$0040:$57],Chaine);
+ Ecrit(X+54,Y+12,Chaine,$9B);
+ Ecrit(X+44,Y+13,'X5=',$9F);
+ Str(Mem[$0040:$58],Chaine);
+ Ecrit(X+47,Y+13,Chaine,$9B);
+ Ecrit(X+51,Y+13,'Y5=',$9F);
+ Str(Mem[$0040:$59],Chaine);
+ Ecrit(X+54,Y+13,Chaine,$9B);
+ Ecrit(X+44,Y+14,'X6=',$9F);
+ Str(Mem[$0040:$5A],Chaine);
+ Ecrit(X+47,Y+14,Chaine,$9B);
+ Ecrit(X+51,Y+14,'Y6=',$9F);
+ Str(Mem[$0040:$5B],Chaine);
+ Ecrit(X+54,Y+14,Chaine,$9B);
+ Ecrit(X+44,Y+15,'X7=',$9F);
+ Str(Mem[$0040:$5C],Chaine);
+ Ecrit(X+47,Y+15,Chaine,$9B);
+ Ecrit(X+51,Y+15,'Y7=',$9F);
+ Str(Mem[$0040:$5D],Chaine);
+ Ecrit(X+54,Y+15,Chaine,$9B);
+ Ecrit(X+44,Y+16,'X8=',$9F);
+ Str(Mem[$0040:$5E],Chaine);
+ Ecrit(X+47,Y+16,Chaine,$9B);
+ Ecrit(X+51,Y+16,'Y8=',$9F);
+ Str(Mem[$0040:$5F],Chaine);
+ Ecrit(X+54,Y+16,Chaine,$9B);
+ Ecrit(X+6,Y+10,'Format du curseur :',$9F);
+ Str(Mem[$0040:$60],Chaine);
+ Temp := Chaine + '-';
+ Str(Mem[$0040:$61],Chaine);
+ Temp := Temp + Chaine;
+ Ecrit(X+26,Y+10,Temp,$9B);
+ Ecrit(X+6,Y+11,'Hauteur caractŠre :',$9F);
+ Str(Mem[$0040:$85],Chaine);
+ Ecrit(X+26,Y+11,Chaine,$9B);
+ CadreVide(X+2,Y+13,X+37,Y+17,$9F);
+ Ecrit(X+4,Y+13,' Compl‚mentaire ',$9E);
+ Ecrit(X+11,Y+14,'"Port" vid‚o :',$9F);
+ Ecrit(X+26,Y+14,Hex4(MemW[$0040:$63])+'h',$9B);
+ Ecrit(X+5,Y+15,'Registre s‚lection :',$9F);
+ Str(Mem[$0040:$65],Chaine);
+ Ecrit(X+26,Y+15,Chaine,$9B);
+ Ecrit(X+8,Y+16,'Palette couleur :',$9F);
+ Str(Mem[$0040:$66],Chaine);
+ Ecrit(X+26,Y+16,Chaine,$9B);
+ AfficheToucheEgale(X+39,Y+4,X+39,Y+6,X+51,Y+4,X+51,Y+6);
+ Touche := LitClavier;
+ AfficheBar;
+ FenetreTapiserie(X,Y,X+65,Y+19,173,174,$78,$87);
+End;

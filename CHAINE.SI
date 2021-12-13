@@ -1,0 +1,80 @@
+Function EffaceStr(Chaine:String;Pos,Num:Byte):String;
+Begin
+ If(Chaine <> '')and(Length(Chaine) > 1)Then
+ Begin
+  If(Pos+Num > Length(Chaine))Then EffaceStr := Copy(Chaine,1,Pos-1)
+   else
+  Begin
+   Delete(Chaine,Pos,Num);
+   EffaceStr := Chaine;
+  End;
+ End
+  else
+ EffaceStr := '';
+End;
+
+Procedure IncStr(Var Chaine:String;Complement:String);
+Begin
+ Chaine := Chaine + Complement;
+End;
+
+Function Maj(Chaine:String):String;
+Var Compteur : Byte;
+    Phrase   : String;
+    Carac    : Char;
+Begin
+ Phrase := '';
+ For Compteur := 1 to Length(Chaine) do
+ Begin
+  Carac := Chaine[Compteur];
+  If(Carac > #96)and(Carac < #123)Then IncStr(Phrase,Chr(Ord(Carac) - 32)) else
+  If(Carac in ['€','‡'])Then IncStr(Phrase,'C') else
+  If(Carac in ['','–','—','š','£'])Then IncStr(Phrase,'U') else
+  If(Carac in ['‚','ˆ','‰','Š',''])Then IncStr(Phrase,'E') else
+  If(Carac in ['ƒ','„','…','†','Ž','',' ','¦'])Then IncStr(Phrase,'A') else
+  If(Carac in ['‹','Œ','','¡'])Then IncStr(Phrase,'I') else
+  If(Carac in ['“','”','•','™','¢','§'])Then IncStr(Phrase,'O') else
+  If(Carac in ['¤','¥'])Then IncStr(Phrase,'N') else
+  If(Carac = '˜')Then IncStr(Phrase,'Y') else
+  If(Carac = '‘')Then IncStr(Phrase,'’')
+   else
+  Phrase := Phrase + Carac;
+ End;
+ Maj := Phrase;
+End;
+
+Function Hex2(Nombre:Byte):String;
+Begin
+ Hex2 := PaletteHex[Nombre shr 4] +
+         PaletteHex[Nombre and 15];
+End;
+
+Function Hex4(Nombre:Word):String;
+Begin
+ Hex4 := PaletteHex[Nombre shr 12] +
+         PaletteHex[(Nombre shr 8) and 15] +
+         PaletteHex[(Nombre shr 4) and 15] +
+         PaletteHex[Nombre and 15];
+End;
+
+Function Bin2(Nombre:Byte):String;
+Var Temp     : String;
+    Compteur : Byte;
+Begin
+ Temp := '';
+ For Compteur := 7 downto 0 do
+ Begin
+  Temp := Chr(((Nombre shr Compteur) and 1)+48);
+ End
+End;
+
+Function Bin4(Nombre:Word):String;
+Var Temp     : String;
+    Compteur : Byte;
+Begin
+ Temp := '';
+ For Compteur := 15 downto 0 do
+ Begin
+  Temp := Chr(((Nombre shr Compteur) and 1)+48);
+ End
+End;

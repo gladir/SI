@@ -1,0 +1,134 @@
+Procedure DerniereLigne;
+Var Lig : Byte;
+    Col : Byte;
+Begin
+ Lig := Ligne;
+ Col := Colonne;
+ EcritSpecial(2,Lig,#3+#252+#29+'F1 '+#3+Chr(MenuNormal)+'Aide'+#16+
+       Chr(Col-24)+Chr(Lig)+#179+#3+#252+'  SystŠme Information');
+End;
+
+Procedure InitEcranSlow;
+Begin
+ FermeCurseur;
+ Clignotement(0);
+ AfficheBar;
+ Tapiserie(1,Ligne-1,173,174,$78,$87);
+ DerniereLigne;
+ CopiePage(0,3);
+End;
+
+(********************************************************************)
+(*  Proc‚dure   : Speed Initialise Ecran                            *)
+(*  Description : Initialise ‚cran visuellement de base du          *)
+(*                programme.                                        *)
+(********************************************************************)
+(*  Entr‚e      : Aucun                                             *)
+(*  Sortie      : Aucun                                             *)
+(********************************************************************)
+
+Procedure SpeedInitialiseEcran;
+Const Init : Byte = 0;
+Begin
+ FermeCurseur;
+ Clignotement(0);
+ If(Init = 0)Then
+ Begin
+  Init := 1;
+  InitEcranSlow;
+ End
+  else
+ Begin
+  CopiePage(3,0);
+ End;
+End;
+
+(********************************************************************)
+(*  Proc‚dure   : Initialise Ecran                                  *)
+(*  Description : Initialise ‚cran de base du programme.            *)
+(********************************************************************)
+(*  Entr‚e      : Aucun                                             *)
+(*  Sortie      : Aucun                                             *)
+(********************************************************************)
+
+Procedure InitialiseEcran;
+Begin
+ If(Video.Carte[0] = ITVGA2)and(Fixe25 = 0)Then
+ Begin
+  DensiteLigne(1);
+  ModeVideo(42,1);
+  If(Mem[$0040:$49] <> 42)Then
+  Begin
+   DensiteLigne(1);
+   ModeVideo(ModeInitiale,0);
+  End;
+  ChargePolice(128,0,16,2,@Palette8x16_1);
+  ChargePolice(156,0,16,84,Ptr(Seg(Palette8x16_1),Ofs(Palette8x16_1)+448));
+  ChargePolice(242,0,16,13,Ptr(Seg(Palette8x16_1),Ofs(Palette8x16_1)+1824));
+ End
+  else
+ Begin
+  DensiteLigne(1);
+  ModeVideo(ModeInitiale,0);
+  InLine($50/         { Push AX      }
+         $53/         { Push BX      }
+         $B8/$01/$11/ { Mov AX,1101h }
+         $B3/$00/     { Mov BL,00h   }
+         $CD/$10/     { Int 10h      }
+         $5B/         { Pop BX       }
+         $58);        { Pop AX       }
+  ChargePolice(128,0,14,2,@Palette8x14_1);
+  ChargePolice(156,0,14,84,Ptr(Seg(Palette8x14_1),Ofs(Palette8x14_1)+392));
+  ChargePolice(242,0,14,13,Ptr(Seg(Palette8x14_1),Ofs(Palette8x14_1)+1596));
+ End;
+ FixePageTravail(0);
+ FixePageVisuel(0);
+ InitEcranSlow;
+End;
+
+(********************************************************************)
+(*  Proc‚dure   : Initialise Ecran                                  *)
+(*  Description : Initialise ‚cran de base du programme.            *)
+(********************************************************************)
+(*  Entr‚e      : Aucun                                             *)
+(*  Sortie      : Aucun                                             *)
+(********************************************************************)
+
+Procedure HypocrytheInitialiseEcran;
+Begin
+ If(Video.Carte[0] = ITVGA2)and(Fixe25=0)Then
+ Begin
+  DensiteLigne(1);
+  ModeVideo(42,1);
+  If(Mem[$0040:$49] <> 42)Then
+  Begin
+   DensiteLigne(1);
+   ModeVideo(ModeInitiale,0);
+  End;
+  ChargePolice(128,0,16,2,@Palette8x16_1);
+  ChargePolice(156,0,16,84,Ptr(Seg(Palette8x16_1),Ofs(Palette8x16_1)+448));
+  ChargePolice(242,0,16,13,Ptr(Seg(Palette8x16_1),Ofs(Palette8x16_1)+1824));
+ End
+  else
+ Begin
+  DensiteLigne(1);
+  ModeVideo(ModeInitiale,0);
+  InLine($50/         { Push AX      }
+         $53/         { Push BX      }
+         $B8/$01/$11/ { Mov AX,1101h }
+         $B3/$00/     { Mov BL,00h   }
+         $CD/$10/     { Int 10h      }
+         $5B/         { Pop BX       }
+         $58);        { Pop AX       }
+  ChargePolice(128,0,14,2,@Palette8x14_1);
+  ChargePolice(156,0,14,84,Ptr(Seg(Palette8x14_1),Ofs(Palette8x14_1)+392));
+  ChargePolice(242,0,14,13,Ptr(Seg(Palette8x14_1),Ofs(Palette8x14_1)+1596));
+ End;
+ FixePageTravail(3);
+ FermeCurseur;
+ Clignotement(0);
+ AfficheBar;
+ Tapiserie(1,Ligne-1,173,174,$78,$87);
+ DerniereLigne;
+ FixePageTravail(0);
+End;

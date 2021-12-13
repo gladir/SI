@@ -1,0 +1,138 @@
+(*******************************************************************)
+(*  Proc‚dure   : Table Param                                      *)
+(*  Description : Affiche une fenˆtre decrivant les informations   *)
+(*                de base de la carte video CGA ou MDA.            *)
+(*******************************************************************)
+(*  Entr‚e      : X et Y                                           *)
+(*  Sortie      : Aucun                                            *)
+(*******************************************************************)
+
+Procedure TableParam(X,Y:Byte);
+Const Position : Byte = 0;
+Var XC,YC      : Word;
+    Segment    : Word;
+    OffSet     : Word;
+    Registre   : Registers;
+
+ Function Data(Numero:Byte):String;
+ Var XC   : Byte;
+     Temp : String;
+ Begin
+  Temp := '';
+  For XC := 0 to 2 do
+  Begin
+   Temp := Temp + Hex2(Mem[Segment+XC:OffSet+Numero]) + 'h   ';
+  End;
+  Data := Temp + Hex2(Mem[Segment+3:OffSet+Numero]) + 'h';
+ End;
+
+ Function Nom(Numero:Byte):String;
+ Begin
+  Case Numero of
+   $00 : Nom := 'Colonne affichable';
+   $01 : Nom := 'Colonne affich‚';
+   $02 : Nom := 'CaractŠre signaux vert.';
+   $03 : Nom := 'Dur‚e du signal';
+   $04 : Nom := 'Ligne affichable';
+   $05 : Nom := 'Ligne ajust‚';
+   $06 : Nom := 'Ligne affich‚';
+   $07 : Nom := 'CaractŠre signaux hori.';
+   $08 : Nom := 'Mode d''entrelacement';
+   $09 : Nom := 'Pixel par ligne';
+   $0A : Nom := 'Curseur (d‚part)';
+   $0B : Nom := 'Curseur (fin)';
+   $0C : Nom := 'Offset page (fort)';
+   $0D : Nom := 'Offset page (faible)';
+   $0E : Nom := 'Offset curseur (fort)';
+   $0F : Nom := 'Offset curseur (faible)';
+  End;
+ End;
+
+Begin
+ Position := 0;
+ Segment := 256 * Mem[0:119] + Mem[0:118];
+ OffSet  := 256 * Mem[0:117] + Mem[0:116];
+ SelecteVideo;
+ FixeCadre(PaletteCadre_E1);
+ CadrePlain(X,Y,X+66,Y+14,$9F);
+ EcritUnAttribut(X,Y,15);
+ EcritUnAttribut(X+1,Y,15);
+ Ecrit(X+26,Y,'Table ParamŠtre',$FC);
+ FixeCadre(PaletteCadre_E2);
+ CadreVide(X+2,Y+2,X+52,Y+13,$9F);
+ Ecrit(X+4,Y+3,'40x25 80x25 Graph Mono Description',$9E);
+ Ecrit(X+4,Y+4,'----- ----- ----- ---- ------------------------',$9F);
+ For YC := 0 to 7 do
+ Begin
+  Ecrit(X+1,Y+5+YC,#158+#159,$F0);
+  Ecrit(X+4,Y+5+YC,Data(YC),$9B);
+  Ecrit(X+27,Y+5+YC,Nom(YC),$9F);
+ End;
+ Ecrit(X+1,Y+5,#164+#165,$F);
+ Ecrit(X+1,Y+12,#248+#249,$F);
+ AfficheToucheEgale(X+54,Y+4,X+54,Y+6,X+54,Y+8,X+54,Y+10);
+ InstalleClignotement;
+ YC := 0;
+ Repeat
+  Selecte(X+1,Y+6+((6 * Position) div 16),X+2,$F); { Position bar }
+  Selecte(X+3,Y+5+YC,X+51,$B);
+  Touche := LitClavier;
+  Selecte(X+3,Y+5+YC,X+26,$9B);
+  Selecte(X+27,Y+5+YC,X+51,$9F);
+  Selecte(X+1,Y+6+((6 * Position) div 16),X+2,$F0); { Position bar }
+  Case Lo(Touche) of
+   0 : Begin
+        Case Hi(Touche) of
+         72 : Begin
+               If(Position > 0)Then
+               Begin
+                Dec(Position);
+                If(YC > 0)Then Dec(YC)
+                 else
+                Begin
+                 With Registre do
+                 Begin
+                  AX := $0701;
+                  BH := $9B;
+                  CL := X + 3;
+                  CH := Y + 5;
+                  DL := X + 51;
+                  DH := Y + 12;
+                  Intr($10,Registre);
+                 End;
+                 Ecrit(X+4,Y+5+YC,Data(Position),$9B);
+                 Ecrit(X+27,Y+5+YC,Nom(Position),$9F);
+                End;
+               End;
+              End;
+         80 : Begin
+               If(Position < 15)Then
+               Begin
+                Inc(Position);
+                If(YC < 7)Then Inc(YC)
+                 else
+                Begin
+                 With Registre do
+                 Begin
+                  AX := $0601;
+                  BH := $9B;
+                  CL := X + 3;
+                  CH := Y + 5;
+                  DL := X + 51;
+                  DH := Y + 12;
+                  Intr($10,Registre);
+                 End;
+                 Ecrit(X+4,Y+5+YC,Data(Position),$9B);
+                 Ecrit(X+27,Y+5+YC,Nom(Position),$9F);
+                End;
+               End;
+              End;
+        End;
+       End;
+  End;
+ Until (Lo(Touche) in [27,32,65,97,83,115,78,110]);
+ DesinstalleClignotement;
+ AfficheBar;
+ FenetreTapiserie(X,Y,X+68,Y+15,173,174,$78,$87);
+ ClaireLigne(Ligne,32,$F0);
+End;

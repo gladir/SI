@@ -1,0 +1,40 @@
+(********************************************************************)
+(*  Proc‚dure   : SystŠme Information                               *)
+(*  Description : Affiche une fenˆtre d‚crivant les systŠmes actif. *)
+(********************************************************************)
+(*  Entr‚e      : Aucun                                             *)
+(*  Sortie      : Aucun                                             *)
+(********************************************************************)
+
+Procedure SystemInfo;
+Begin
+ WriteLn('Nom ordinateur : ',NomMachine);
+ Write('Model : ');
+ Case Model of
+   PC          : WriteLn('Personnel Computer');
+   XT          : WriteLn('eXtended Technology');
+   AT          : WriteLn('Advanced Technology');
+   PS2Model30  : WriteLn('Personnel System/2 Model 25 ou 30');
+   Convertible : WriteLn('PC Convertible');
+   PS2Model80  : WriteLn('Personnel System/2 Model 80');
+   ContermMax  : WriteLn('Conterm Max');
+    else
+   WriteLn('Inconnu');
+ End;
+ WriteLn('Date du BIOS : ',DateBIOS);
+ Write('Driver souris : ');
+ If(DriverMouse=1)Then WriteLn('Pr‚sent')
+		  Else WriteLn('Absent');
+ Write('Driver XMS : ');
+ If(TesteXMS=1)Then WriteLn('Pr‚sent')
+	       Else WriteLn('Absent');
+ Write('Super BIOS II Formatter : ');
+ If(TesteSB2F=1)Then WriteLn('Pr‚sent')
+		Else WriteLn('Absent');
+ Write('CD-ROM : ');
+ If(TesteCDROM=0)Then WriteLn('Absent')
+		 Else WriteLn(TesteCDROM);
+ Write('Manette de Jeu : ');
+ If(Joystick=1)Then WriteLn('Pr‚sent')
+	       Else WriteLn('Absent');
+End;

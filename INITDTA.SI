@@ -1,0 +1,72 @@
+Procedure InitData;
+Var Compteur : Word;
+    Chaine   : String;
+    YPos     : Byte;
+
+ Procedure ErreurDup;
+ Begin
+  Localise(0,YPos);
+  Inc(YPos);
+  EcritBIOS('Erreur : Duplication de paramŠtre!');
+  Halt;
+ End;
+
+Begin
+ YPos := YPosition + 1;
+ { Positionne les switchs du PSP }
+ For Compteur := 1 to ParamCount do
+ Begin
+  Chaine := Maj(ParamStr(Compteur));
+  If(Chaine[1] in ['/','-'])Then Chaine := EffaceStr(Chaine,1,1);
+  If(Chaine = 'MEM')or(Chaine='M')Then
+  Begin
+   If(FixeMem = 1)Then ErreurDup
+    else
+   Begin
+    FixeMem := 1;
+    Localise(0,YPos);
+    Inc(YPos);
+    EcritBIOS('Fixe -> Indiquateur m‚moire');
+   End;
+  End
+   else
+  If(Chaine = 'INTRO')Then
+  Begin
+   If(FixeIntro = 1)Then ErreurDup
+    else
+   Begin
+    FixeIntro := 1;
+    Localise(0,YPos);
+    Inc(YPos);
+    EcritBIOS('Fixe - > Intro p‚riodique');
+   End;
+  End
+   else
+  If(Chaine = '25')or(Chaine = '80x25')or(Chaine = 'M3')Then
+  Begin
+   If(Fixe25 = 1)Then ErreurDup
+    else
+   Begin
+    Fixe25 := 1;
+    Localise(0,YPos);
+    Inc(YPos);
+    EcritBIOS('Fixe - > Mode 03h, Texte 80x25, 16 couleurs');
+   End;
+  End
+   else
+  Begin
+   Localise(0,YPos);
+   EcritBIOS('Erreur : ParamŠtre inconnu!');
+   Halt;
+  End;
+ End;
+ { Teste vid‚o }
+ ConfigurationVideo(Video);
+ If(Video.Carte[0] < EGA)Then
+ Begin
+  WriteLn('Erreur : RequŠre un carte et un moniteur vid‚o EGA!');
+  Halt;
+ End;
+ { Sauvegarde les interruptions }
+ GetIntVec($1C,Original1C);
+End;

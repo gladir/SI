@@ -1,0 +1,43 @@
+Procedure AfficheCadreMemoire;
+Const X = 2;
+      Y = 6;
+Var Chaine : String;
+    Page   : Word;
+
+ Procedure Affiche(Page:Byte);
+ Begin
+  FixePageTravail(Page);
+  ClaireBoiteMemoire(X,Y,X+11,Y+5);
+  FixeCadre(PaletteCadre_E1);
+  CadrePlain(X,Y,X+11,Y+5,$9F);
+  EcritUnAttribut(X,Y,15);
+  EcritUnAttribut(X+1,Y,15);
+  Ecrit(X+3,Y,'M‚moire',$F0);
+  Ecrit(X+2,Y+1,'Libre :',$9F);
+  Str(MaxAvail shr 4,Chaine);
+  Ecrit(X+2,Y+2,Chaine+'K',$9B);
+  Ecrit(X+2,Y+3,'Total :',$9F);
+  Str(MemW[$0040:$13],Chaine);
+  Ecrit(X+2,Y+4,Chaine+'K',$9B);
+  FixeCadre(PaletteCadre_E2);
+ End;
+
+Begin
+ Page := OffSetEcranM;
+ ExclureEcranM := 0;
+ If(FixeMem = 1)Then
+ Begin
+  Affiche(3);
+  Affiche(0);
+ End
+  else
+ Begin
+  BoiteMemoire(X,Y,X+11,Y+5,0);
+  FixePageTravail(3);
+  FenetreTapiserie(X,Y,X+13,Y+6,173,174,$78,$87);
+  FixePageTravail(0);
+  FenetreTapiserie(X,Y,X+13,Y+6,173,174,$78,$87);
+ End;
+ OffSetEcranM := Page;
+ ExclureEcranM := 1;
+End;
